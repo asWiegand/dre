@@ -1,0 +1,39 @@
+<nav class="container-fluid navbar navbar-expand-lg navbar-light bg-dark fixed-top">
+  <div>
+    <i class="me-2"></i>
+    <a class="navbar-brand text-white me-2" href="{% url 'home' %}">Home</a>
+  </div>
+  <!-- Example single danger button -->
+  <div class="btn-group">
+    <button type="button" class="btn btn-primary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+      Caixa
+    </button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="{% url 'moviment_list' %}">Lançamentos</a></li>
+      <li><a class="dropdown-item" href="{% url 'outflow_list' %}">Contas à Pagar</a></li>
+      <li><a class="dropdown-item" href="{% url 'inflow_list' %}">Contas à Receber</a></li>
+    </ul>
+  </div>
+  <div class="btn-group">
+    <button type="button" class="btn btn-primary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="true">
+      Cadastros
+    </button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="{% url 'supplier_list' %}">Clientes/Fornecedores</a></li>
+      <li><a class="dropdown-item" href="{% url 'bank_list' %}">Bancos</a></li>
+      <li><a class="dropdown-item" href="{% url 'accounting_list' %}">Plano de Contas</a></li>
+      <li><a class="dropdown-item" href="{% url 'payment_list' %}">Formas de Pagamento</a></li>
+    </ul>
+  </div>
+   <div class="btn-group">
+    <button type="button" class="btn btn-primary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+      Relatórios
+    </button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="{% url 'report' %}">Relatório Plano de Contas</a></li>
+      <li><a class="dropdown-item" href="{% url 'outflow_report' %}">Relatório Contas à Pagar</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container-fluid" style="padding-top: 70px;"></div>

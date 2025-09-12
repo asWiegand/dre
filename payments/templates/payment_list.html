@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Formas de Pagamento{% endblock %}
+
+
+
+
+{% block content %}
+<div>
+    <h3>Formas de Pagamento</h3>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+        Novo
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="paymentModalLabel">Novo Forma de Pagamento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% if form.errors %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var myModal = new bootstrap.Modal(document.getElementById('addPaymentModal'));
+        myModal.show();
+    });
+</script>
+{% endif %}
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Forma de Pagamento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for forma in payments %}
+            <tr>
+                <td>{{ forma.id }}</td>
+                <td>{{ forma.name }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">Nenhuma forma de pagamento cadastrada ainda.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

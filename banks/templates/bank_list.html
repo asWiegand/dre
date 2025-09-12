@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}DRE - Bancos{% endblock %}
+
+
+
+
+{% block content %}
+<h3>Lista de Bancos</h3>
+
+<!-- Botão para abrir o modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBankModal">
+    Adicionar Banco
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="addBankModal" tabindex="-1" aria-labelledby="bankModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBankModal">Novo Banco</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tabela de bancos -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome do Banco</th>
+            <th>Saldo</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for banco in banks %}
+        <tr>
+            <td>{{ banco.id }}</td>
+            <td>{{ banco.bank_name }}</td>
+            <td>{{ banco.balance }}</td>
+            <td>
+                <!-- Botão de editar -->
+                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#editBankModal{{ banco.id }}" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                </button>
+
+                <!-- Modal de edição -->
+                <div class="modal fade" id="editBankModal{{ banco.id }}" tabindex="-1"
+                    aria-labelledby="editModalLabel{{ banco.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post" action="{% url 'bank_update' banco.id %}">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel{{ banco.id }}">Editar Banco</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="text" name="bank_name" class="form-control"
+                                        value="{{ banco.bank_name }}" required>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão de deletar -->
+                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#deleteBankModal{{ banco.id }}" title="Excluir">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+                <!-- Modal de exclusão -->
+                <div class="modal fade" id="deleteBankModal{{ banco.id }}" tabindex="-1"
+                    aria-labelledby="deleteModalLabel{{ banco.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post" action="{% url 'bank_delete' banco.id %}">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel{{ banco.id }}">Excluir Banco</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Tem certeza que deseja excluir o banco <strong>{{ banco.bank_name }}</strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">Nenhum banco cadastrado ainda.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

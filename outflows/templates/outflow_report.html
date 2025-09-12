@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Relatório - Contas a Pagar{% endblock %}
+
+{% block content %}
+<h3>Relatório de Contas a Pagar</h3>
+<div>
+    <form method="get" class="d-flex mb-3">
+        <label for="month">Mês:</label>
+        <select name="month" class="form-control mx-2">
+            <option value="">Todos</option>
+            {% for value, name in month_choices %}
+            <option value="{{ value }}" {% if month == value %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+        <label for="year">Ano:</label>
+        <select name="year" class="form-control mx-2">
+            {% for y in years_choices %}
+            <option value="{{ y.year }}" {% if year|default:'' == y.year|stringformat:"s" %}selected{% endif %}>{{ y.year }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </form>
+</div>
+
+<!-- Totais -->
+<div class="mb-3">
+    <h5>Resumo</h5>
+    <p><strong>Total a Pagar (NP):</strong> R$ {{ total_np|floatformat:2 }}</p>
+</div>
+
+<!-- Lista detalhada -->
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Fornecedor</th>
+                <th>Data de Vencimento</th>
+                <th>Status</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for outflow in outflows %}
+            
+            <tr>
+                <td>{{ outflow.title }}</td>
+                <td>{{ outflow.supplier }}</td>
+                <td>{{ outflow.expire_date|date:"d/m/Y" }}</td>
+                <td>{{ outflow.status }}</td>
+                <td>R$ {{ outflow.value|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Nenhuma conta encontrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

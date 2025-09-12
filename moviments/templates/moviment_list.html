@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}DRE - Movimentações{% endblock %}
+
+
+
+
+{% block content %}
+
+<div>
+    <form method="get" class="d-flex mb-3" role="search">
+        <!-- Caixa 1: Seleção do campo -->
+        <select name="field" id="fieldSelector" class="form-select me-2" style="width: 150px;">
+            <option value="moviment_date" {% if field == 'moviment_date' %}selected{% endif %}>Data</option>
+            <option value="description" {% if field == 'description' %}selected{% endif %}>Descrição</option>
+            <option value="value" {% if field == 'value' %}selected{% endif %}>Valor</option>
+        </select>
+
+        <!-- Caixa 2: Campo de texto para busca -->
+        <input type="text" id="searchInput" name="query" value="{{ request.GET.query }}" class="form-control me-2"
+            placeholder="Digite sua busca">
+
+        <!-- Botão de busca -->
+        <button type="submit" class="btn btn-primary me-2">Buscar</button>
+        <a href="{% url 'moviment_list' %}">
+            <button type="button" class="btn btn-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-repeat"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M11 5.466V4H5a4 4 0 0 0-3.584 5.777.5.5 0 1 1-.896.446A5 5 0 0 1 5 3h6V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192m3.81.086a.5.5 0 0 1 .67.225A5 5 0 0 1 11 13H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.585-5.777.5.5 0 0 1 .225-.67Z" />
+                </svg>
+            </button>
+        </a>
+    </form>
+    <script>
+        const fieldSelector = document.getElementById('fieldSelector');
+        const searchInput = document.getElementById('searchInput');
+
+        function updateInputType() {
+            const selected = fieldSelector.value;
+
+            if (selected === 'moviment_date') {
+                searchInput.type = 'date';
+                searchInput.placeholder = 'Selecione a data';
+            } else if (selected === 'value') {
+                searchInput.type = 'number';
+                searchInput.placeholder = 'Digite o valor';
+                searchInput.step = '0.01';
+            } else {
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Digite a descrição';
+            }
+        }
+
+        // Atualiza ao mudar
+        fieldSelector.addEventListener('change', updateInputType);
+
+        // Atualiza na primeira carga da página (caso tenha query string)
+        window.addEventListener('DOMContentLoaded', updateInputType);
+    </script>
+</div>
+
+<div>
+    <h3>Movimentações</h3>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMovimentModal">
+        Nova Movimentação
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" id="addMovimentModal" tabindex="-1" aria-labelledby="movimentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="movimentModalLabel">Novo Movimentação</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if form.errors %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var myModal = new bootstrap.Modal(document.getElementById('addMovimentModal'));
+            myModal.show();
+        });
+    </script>
+    {% endif %}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Banco</th>
+                <th>Plano de Contas</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimento in moviments %}
+            <tr>
+                <td>{{ movimento.moviment_date|date:"d/m/Y" }}</td>
+                <td>{{ movimento.bank_id.bank_name }}</td>
+                <td> {{ movimento.accounting }} </td>
+                <td>{{ movimento.description }}</td>
+                <td class="{% if movimento.accounting.type == 'S' %}text-danger{% endif %}">R$: {{ movimento.value }}
+                </td>
+                <td>
+                    <!-- Botão para abrir o modal -->
+                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#editMovimentModal{{ movimento.id }}" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+
+                    <!-- Modal de edição -->
+                    <div class="modal fade" id="editMovimentModal{{ movimento.id }}" tabindex="-1"
+                        aria-labelledby="editModalLabel{{ movimento.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="{% url 'moviment_update' movimento.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel{{ movimento.id }}">Editar
+                                            Movimentação</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Fechar"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-2">
+                                            <label>Data</label>
+                                            <input type="date" name="moviment_date" class="form-control"
+                                                value="{{ movimento.moviment_date|date:'Y-m-d' }}">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label>Banco</label>
+                                            <select name="bank_id" class="form-control">
+                                                {% for banco in banks %}
+                                                <option value="{{ banco.id }}" {% if movimento.bank.id == banco.id%}selected{% endif %}>
+                                                    {{ banco.bank_name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label>Plano de Contas</label>
+                                            <select name="accounting" class="form-control">
+                                                {% for conta in accountings %}
+                                                <option value="{{ conta.id }}" {% if movimento.accounting.id == conta.id%}selected{% endif %}>
+                                                    {{ conta.acc_name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label>Descrição</label>
+                                            <textarea name="description" class="form-control"
+                                                rows="3">{{ movimento.description }}</textarea>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label>Valor</label>
+                                            <input type="number" step="0.01" name="value" class="form-control"
+                                                value="{{ movimento.value }}">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#deleteMovimentModal{{ movimento.id }}" title="Excluir">
+                        <i class="bi bi-trash"></i>
+                    </button>
+
+                    <!-- Modal de exclusão -->
+                    <div class="modal fade" id="deleteMovimentModal{{ movimento.id }}" tabindex="-1"
+                        aria-labelledby="deleteModalLabel{{ movimento.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="{% url 'moviment_delete' movimento.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ movimento.id }}">Excluir
+                                            Movimentação</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Fechar"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Tem certeza que deseja excluir a movimentação <strong>{{ movimento.value
+                                            }}</strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-danger">Excluir</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">Nenhuma conta cadastrado ainda.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+
+{% endblock %}
