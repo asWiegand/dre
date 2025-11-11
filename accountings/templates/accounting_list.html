@@ -1,92 +1,100 @@
 {% extends 'base.html' %}
-{% block title %}DRE - Movimentações{% endblock %}
-
-
-
+{% block title %}DRE - Plano de Contas{% endblock %}
 
 {% block content %}
-<h3>Plano de Contas</h3>
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAccountingModal">
-    Plano de Contas
-</button>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-semibold">
+      <i class="bi bi-journal-text text-primary me-2"></i>Plano de Contas
+    </h3>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAccountingModal">
+      <i class="bi bi-plus-circle me-1"></i> Novo Plano
+    </button>
+  </div>
 
-<!-- Modal -->
-<div class="modal fade" id="addAccountingModal" tabindex="-1" aria-labelledby="accountingModalLabel" aria-hidden="true">
+  <!-- Modal: Novo Plano de Contas -->
+  <div class="modal fade" id="addAccountingModal" tabindex="-1" aria-labelledby="accountingModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-header">
-                    <h5 class="modal-title" id="accountingModalLabel">Novo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    {{ form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                </div>
-            </form>
-        </div>
+      <div class="modal-content">
+        <form method="post">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="accountingModalLabel">Adicionar Plano de Contas</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            {{ form.as_p }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
     </div>
-</div>
+  </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
+  <!-- Tabela -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
             <th>ID</th>
             <th>Nome</th>
             <th>Tipo</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for conta in accountings %}
-        <tr>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for conta in accountings %}
+          <tr>
             <td>{{ conta.id }}</td>
             <td>{{ conta.acc_name }}</td>
             <td>{{ conta.type }}</td>
-            <td>
-                <!-- Botão de deletar -->
-                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                    data-bs-target="#deleteAccountingModal{{ conta.id }}" title="Excluir">
-                    <i class="bi bi-trash"></i>
-                </button>
-
-                <!-- Modal de exclusão -->
-                <div class="modal fade" id="deleteAccountingModal{{ conta.id }}" tabindex="-1"
-                    aria-labelledby="deleteModalLabel{{ conta.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form method="post" action="{% url 'accounting_delete' conta.id %}">
-                                {% csrf_token %}
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ conta.id }}">Excluir Plano de Contas</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Fechar"></button>
-                                </div>
-                                <div class="modal-body">
-                                    Tem certeza que deseja excluir o plano de contas <strong>{{ conta.acc_name }}</strong>?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-danger">Excluir</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+            <td class="text-center">
+              <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                  <i class="bi bi-pencil-square"></i>
+              </a>
+              <!-- Botão deletar -->
+              <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                data-bs-target="#deleteAccountingModal{{ conta.id }}" title="Excluir">
+                <i class="bi bi-trash"></i>
+              </button>
             </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="3">Nenhuma conta cadastrado ainda.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+          </tr>
 
+          <!-- Modal de exclusão -->
+          <div class="modal fade" id="deleteAccountingModal{{ conta.id }}" tabindex="-1"
+            aria-labelledby="deleteModalLabel{{ conta.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form method="post" action="{% url 'accounting_delete' conta.id %}">
+                  {% csrf_token %}
+                  <div class="modal-header">
+                    <h5 class="modal-title">Excluir Plano de Contas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                  </div>
+                  <div class="modal-body">
+                    Tem certeza que deseja excluir o plano <strong>{{ conta.acc_name }}</strong>?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
 
-
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center text-muted py-3">Nenhum plano cadastrado ainda.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 {% endblock %}

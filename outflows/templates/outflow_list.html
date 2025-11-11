@@ -1,23 +1,25 @@
 {% extends 'base.html' %}
-{% block title %}Contas à Pagar{% endblock %}
-
-
-
+{% block title %}DRE - Saídas{% endblock %}
 
 {% block content %}
-<div>
-    <h3>Contas à Pagar</h3>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOutflowModal">
-        Nova Conta
-    </button>
-    <!-- Modal -->
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-semibold">
+            <i class="bi bi-cash-stack text-danger me-2"></i>Contas à Pagar
+        </h3>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOutflowModal">
+            <i class="bi bi-plus-lg"></i> Nova Conta a Pagar
+        </button>
+    </div>
+
+    <!-- Modal de Adição -->
     <div class="modal fade" id="addOutflowModal" tabindex="-1" aria-labelledby="outflowModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form method="post">
                     {% csrf_token %}
                     <div class="modal-header">
-                        <h5 class="modal-title" id="outflowModalLabel">Nova Conta</h5>
+                        <h5 class="modal-title" id="outflowModalLabel">Nova Saída</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     <div class="modal-body">
@@ -25,210 +27,211 @@
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Salvar</button>
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Cancelar</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    {% if form.errors %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var myModal = new bootstrap.Modal(document.getElementById('addMovimentModal'));
-            myModal.show();
-        });
-    </script>
-    {% endif %}
+
+    <!-- Tabela -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Data da Criação</th>
+                        <th class="text-center">Titulo</th>
+                        <th class="text-center">Fornecedor</th>
+                        <th class="text-center">Data de Vencimento</th>
+                        <th class="text-center">Valor</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Data Pagamento</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for outflow in outflows %}
+                    <tr>
+                        <td class="text-center">{{ outflow.created_date|date:"d/m/Y" }}</td>
+                        <td class="text-center">{{ outflow.title }}</td>
+                        <td class="text-center">{{ outflow.supplier }}</td>
+                        <td class="text-center">{{ outflow.expire_date|date:"d/m/Y" }} </td>
+                        <td class="text-center">R$: {{ outflow.value }}</td>
+                        <td class="text-center">
+                            {% if outflow.status == 'PG' %}
+                                <span class="badge bg-success">Pago</span>
+                            {% elif outflow.status == 'NP' and outflow.is_expired %}
+                                <span class="badge bg-danger">Vencido</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ outflow.payment_date|date:"d/m/Y" }}</td>
+
+                        <td class="text-end">
+                            {% if outflow.status == 'NP' %}
+                            <!-- Botão para marcar como pago -->
+                            <button type="button" class="btn btn-outline-success btn-sm me-1" data-bs-toggle="modal"
+                                data-bs-target="#payOutflowModal{{ outflow.id }}" title="Marcar como Pago">
+                                <i class="bi bi-cash-stack"></i>
+                            </button>
+
+                            <!-- Modal para pagamento -->
+                            <div class="modal fade" id="payOutflowModal{{ outflow.id }}" tabindex="-1"
+                                aria-labelledby="payOutflowLabel{{ outflow.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" action="{% url 'outflow_pay' outflow.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="payOutflowLabel{{ outflow.id }}">Registrar Pagamento</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-2">
+                                                    <label for="payment_date">Data do Pagamento</label>
+                                                    <input type="date" name="payment_date" class="form-control" required>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="bank_id">Banco</label>
+                                                    <select name="bank_id" class="form-control" required>
+                                                        {% for bank in banks %}
+                                                        <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-success">Confirmar Pagamento</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <a href="{% url 'outflow_detail' outflow.id %}" class="btn btn-outline-primary btn-sm me-1">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if outflow.status == 'NP' %}
+                            <!-- Botão para abrir o modal de edição do fornecedor -->
+                            <button type="button" class="btn btn-outline-warning btn-sm me-1" data-bs-toggle="modal"
+                                data-bs-target="#editOutflowModal{{ outflow.id }}" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <!-- Modal de edição do fornecedor -->
+                            <div class="modal fade" id="editOutflowModal{{ outflow.id }}" tabindex="-1"
+                                aria-labelledby="editOutflowLabel{{ outflow.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" action="{% url 'outflow_update' outflow.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editOutflowLabel{{ outflow.id }}">{{outflow.title}}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-2">
+                                                    <label for="created_date">Data de Criação</label>
+                                                    <input type="date" name="created_date" class="form-control"
+                                                        value="{{ outflow.created_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="expire_date">Data de Vencimento</label>
+                                                    <input type="date" name="expire_date" class="form-control"
+                                                        value="{{ outflow.expire_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Fornecedor</label>
+                                                    <select name="supplier" class="form-control">
+                                                        {% for supplier in suppliers %}
+                                                        <option value="{{ supplier.id }}" {% if outflow.supplier.id == supplier.id%}selected{% endif %}>
+                                                            {{ supplier.company_name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Plano de Contas</label>
+                                                    <select name="accounting" class="form-control">
+                                                        {% for conta in accountings %}
+                                                        <option value="{{ conta.id }}" {% if outflow.accounting.id == conta.id%}selected{% endif %}>
+                                                            {{ conta.acc_name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Forma de Pagamento</label>
+                                                    <select name="payment_method" class="form-control">
+                                                        {% for plano in payments %}
+                                                        <option value="{{ plano.id }}" {% if outflow.payment_method.id == plano.id%}selected{% endif %}>
+                                                            {{ plano.name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Valor</label>
+                                                    <input type="number" step="0.01" name="value" class="form-control"
+                                                        value="{{ outflow.value }}">
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <!-- Botão de deletar -->
+                            <button type="button" class="btn btn-outline-danger btn-sm me-1" data-bs-toggle="modal"
+                                data-bs-target="#deleteOutflowModal{{ outflow.id }}" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                            <!-- Modal de exclusão -->
+                            <div class="modal fade" id="deleteOutflowModal{{ outflow.id }}" tabindex="-1"
+                                aria-labelledby="deleteModalLabel{{ outflow.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" action="{% url 'outflow_delete' outflow.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteModalLabel{{ outflow.id }}">Excluir
+                                                    Conta à Pagar</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Tem certeza que deseja excluir a conta </br><strong>
+                                                    {{outflow.title }}</strong>?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-danger">Excluir</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Nenhuma saída registrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-<div>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Data da Criação</th>
-                <th>Titulo</th>
-                <th>Fornecedor</th>
-                <th>Data de Vencimento</th>
-                <th>Valor</th>
-                <th>Status</th>
-                <th>Data Pagamento</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for outflow in outflows %}
-            <tr>
-                <td {% if outflow.is_expired and outflow.status == 'NP' %} style="color:red;"{% endif %}>{{ outflow.created_date|date:"d/m/Y" }}</td>
-                <td {% if outflow.is_expired and outflow.status == 'NP' %} style="color:red;"{% endif %}>{{ outflow.title }}</td>
-                <td {% if outflow.is_expired and outflow.status == 'NP' %} style="color:red;"{% endif %}>{{ outflow.supplier }}</td>
-                <td {% if outflow.is_expired and outflow.status == 'NP' %} style="color:red;"{% endif %}>{{ outflow.expire_date|date:"d/m/Y" }} </td>
-                <td {% if outflow.is_expired and outflow.status == 'NP' %} style="color:red;"{% endif %}>R$: {{ outflow.value }}</td>
-                <td {% if outflow.is_expired and outflow.status == 'NP' %} style="color:red;"{% endif %}>{{ outflow.status }}</td>
-                <td {% if outflow.is_expired and outflow.status == 'NP' %} style="color:red;"{% endif %}>{{ outflow.payment_date|date:"d/m/Y" }}</td>
-
-                <td>
-                    {% if outflow.status == 'NP' %}
-                    <!-- Botão para marcar como pago -->
-                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#payOutflowModal{{ outflow.id }}" title="Marcar como Pago">
-                        <i class="bi bi-cash-stack"></i>
-                    </button>
-
-                    <!-- Modal para pagamento -->
-                    <div class="modal fade" id="payOutflowModal{{ outflow.id }}" tabindex="-1"
-                        aria-labelledby="payOutflowLabel{{ outflow.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="post" action="{% url 'outflow_pay' outflow.id %}">
-                                    {% csrf_token %}
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="payOutflowLabel{{ outflow.id }}">Registrar Pagamento</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-2">
-                                            <label for="payment_date">Data do Pagamento</label>
-                                            <input type="date" name="payment_date" class="form-control" required>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="bank_id">Banco</label>
-                                            <select name="bank_id" class="form-control" required>
-                                                {% for bank in banks %}
-                                                <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-success">Confirmar Pagamento</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    <a href="{% url 'outflow_detail' outflow.id %}" class="btn btn-info btn-sm">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                    {% if outflow.status == 'NP' %}
-                    <!-- Botão para abrir o modal de edição do fornecedor -->
-                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#editOutflowModal{{ outflow.id }}" title="Editar">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-
-                    <!-- Modal de edição do fornecedor -->
-                    <div class="modal fade" id="editOutflowModal{{ outflow.id }}" tabindex="-1"
-                        aria-labelledby="editOutflowLabel{{ outflow.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="post" action="{% url 'outflow_update' outflow.id %}">
-                                    {% csrf_token %}
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editOutflowLabel{{ outflow.id }}">{{outflow.title}}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Fechar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-2">
-                                            <label for="created_date">Data de Criação</label>
-                                            <input type="date" name="created_date" class="form-control"
-                                                value="{{ outflow.created_date|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="expire_date">Data de Vencimento</label>
-                                            <input type="date" name="expire_date" class="form-control"
-                                                value="{{ outflow.expire_date|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label>Fornecedor</label>
-                                            <select name="supplier" class="form-control">
-                                                {% for supplier in suppliers %}
-                                                <option value="{{ supplier.id }}" {% if outflow.supplier.id == supplier.id%}selected{% endif %}>
-                                                    {{ supplier.company_name }}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label>Plano de Contas</label>
-                                            <select name="accounting" class="form-control">
-                                                {% for conta in accountings %}
-                                                <option value="{{ conta.id }}" {% if outflow.accounting.id == conta.id%}selected{% endif %}>
-                                                    {{ conta.acc_name }}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label>Forma de Pagamento</label>
-                                            <select name="payment_method" class="form-control">
-                                                {% for plano in payments %}
-                                                <option value="{{ plano.id }}" {% if outflow.payment_method.id == plano.id%}selected{% endif %}>
-                                                    {{ plano.name }}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label>Valor</label>
-                                            <input type="number" step="0.01" name="value" class="form-control"
-                                                value="{{ outflow.value }}">
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-warning">Salvar Alterações</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    <!-- Botão de deletar -->
-                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#deleteOutflowModal{{ outflow.id }}" title="Excluir">
-                        <i class="bi bi-trash"></i>
-                    </button>
-
-                    <!-- Modal de exclusão -->
-                    <div class="modal fade" id="deleteOutflowModal{{ outflow.id }}" tabindex="-1"
-                        aria-labelledby="deleteModalLabel{{ outflow.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="post" action="{% url 'outflow_delete' outflow.id %}">
-                                    {% csrf_token %}
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteModalLabel{{ outflow.id }}">Excluir
-                                            Conta à Pagar</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Fechar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Tem certeza que deseja excluir a conta </br><strong>
-                                            {{outflow.title }}</strong>?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-danger">Excluir</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">Nenhuma conta a pagar.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-
 {% endblock %}

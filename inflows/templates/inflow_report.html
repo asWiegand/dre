@@ -2,60 +2,52 @@
 {% block title %}Relatório - Contas a Receber{% endblock %}
 
 {% block content %}
-<h3>Relatório de Contas a Receber</h3>
-<div>
-    <form method="get" class="d-flex mb-3">
-        <label for="month">Mês:</label>
-        <select name="month" class="form-control mx-2">
-            <option value="">Todos</option>
-            {% for value, name in month_choices %}
-            <option value="{{ value }}" {% if month == value %}selected{% endif %}>{{ name }}</option>
-            {% endfor %}
-        </select>
-        <label for="year">Ano:</label>
-        <select name="year" class="form-control mx-2">
-            {% for y in years_choices %}
-            <option value="{{ y.year }}" {% if year|default:'' == y.year|stringformat:"s" %}selected{% endif %}>{{ y.year }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-    </form>
-</div>
-
-<!-- Totais -->
-<div class="mb-3">
-    <h5>Resumo</h5>
-    <p><strong>Total a Receber (NP):</strong> R$ {{ total_np|floatformat:2 }}</p>
-</div>
-
-<!-- Lista detalhada -->
-<div>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Título</th>
-                <th>Fornecedor</th>
-                <th>Data de Vencimento</th>
-                <th>Status</th>
-                <th>Valor</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for inflow in inflows %}
-            
-            <tr>
-                <td>{{ inflow.title }}</td>
-                <td>{{ inflow.supplier }}</td>
-                <td>{{ inflow.expire_date|date:"d/m/Y" }}</td>
-                <td>{{ inflow.status }}</td>
-                <td>R$ {{ inflow.value|floatformat:2 }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">Nenhuma conta encontrada.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Relatório - Contas a Receber</h5>
+            <form method="get" class="d-flex align-items-center gap-2">
+                <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+                <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+                <button type="submit" class="btn btn-light text-success fw-semibold border">
+                    <i class="bi bi-filter me-1"></i>Filtrar
+                </button>
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Titulo</th>
+                        <th>Cliente</th>
+                        <th>Valor (R$)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inflow in inflows %}
+                    <tr>
+                        <td>{{ inflow.expire_date|date:"d/m/Y" }}</td>
+                        <td>{{ inflow.title }}</td>
+                        <td>{{ inflow.supplier }}</td>
+                        <td>R$ {{ inflow.value|floatformat:2 }}</td>
+                        <td>{{ inflow.status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">Nenhum lançamento encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-light fw-bold">
+                        <td colspan="3" class="text-end">Total:</td>
+                        <td colspan="2">R$ {{ total_np|floatformat:2 }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -116,9 +116,9 @@
                 </td>
                 <td>
                     <!-- Botão para abrir o modal -->
-                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
                         data-bs-target="#editMovimentModal{{ movimento.id }}" title="Editar">
-                        <i class="bi bi-pencil"></i>
+                        <i class="bi bi-pencil-square"></i>
                     </button>
 
                     <!-- Modal de edição -->
@@ -181,7 +181,7 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
                         data-bs-target="#deleteMovimentModal{{ movimento.id }}" title="Excluir">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -200,8 +200,7 @@
                                             aria-label="Fechar"></button>
                                     </div>
                                     <div class="modal-body">
-                                        Tem certeza que deseja excluir a movimentação <strong>{{ movimento.value
-                                            }}</strong>?
+                                        Tem certeza que deseja excluir a movimentação <strong>{{ movimento.value}}</strong>?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"

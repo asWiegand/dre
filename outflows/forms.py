@@ -1,5 +1,5 @@
 from django import forms
-from .models import Outflow
+from .models import Outflow, Accounting
 
 class OutflowForm(forms.ModelForm):
     installments = forms.IntegerField(
@@ -32,6 +32,9 @@ class OutflowForm(forms.ModelForm):
             'title': 'Título',
             'value': 'Valor',
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['accounting'].queryset = Accounting.objects.filter(type='S')
 
 
 class OutflowUpdateForm(forms.ModelForm):
@@ -55,3 +58,6 @@ class OutflowUpdateForm(forms.ModelForm):
             'payment_method': 'Forma de Pagamento',
             'value': 'Valor',
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['accounting'].queryset = Accounting.objects.filter(type='S')

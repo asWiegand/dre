@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% block title %}DRE - Contas a Receber{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-success mb-0">Contas a Receber</h3>
+        <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#addInflowModal">
+            <i class="bi bi-plus-lg me-1"></i> Novo
+        </button>
+    </div>
+
+    <!-- Modal Adicionar -->
+    <div class="modal fade" id="addInflowModal" tabindex="-1" aria-labelledby="inflowModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="inflowModalLabel">Novo Lançamento</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i>Salvar
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if form.errors %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            new bootstrap.Modal('#addInflowModal').show();
+        });
+    </script>
+    {% endif %}
+
+    <!-- Tabela -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Data</th>
+                        <th class="text-center">Título</th>
+                        <th class="text-center">Cliente</th>
+                        <th class="text-center">Valor (R$)</th>
+                        <th class="text-center">Vencimento</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Pagamamento</th>
+                        <th class="text-end" style="width: 180px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inflow in inflows %}
+                    <tr>
+                        <td class="text-center">{{ inflow.created_date|date:"d/m/Y" }}</td>
+                        <td class="text-center">{{ inflow.title }}</td>
+                        <td class="text-center">{{ inflow.supplier.company_name }}</td>
+                        <td class="text-center">R$ {{ inflow.value|floatformat:2 }}</td>
+                        <td class="text-center">{{ inflow.expire_date|date:"d/m/Y" }}</td>
+                        <td class="text-center">
+                            {% if inflow.status == 'PG' %}
+                                <span class="badge bg-success">Recebido</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ inflow.payment_date|date:"d/m/Y" }} </td>
+                        <td class="text-end">
+                            {% if not inflow.status == 'PG' %}
+                            <button type="button" class="btn btn-outline-success btn-sm me-1" data-bs-toggle="modal"
+                        data-bs-target="#payInflowModal{{ inflow.id }}" title="Marcar como Pago">
+                        <i class="bi bi-cash-stack"></i>
+                    </button>
+
+                    <!-- Modal para pagamento -->
+                    <div class="modal fade" id="payInflowModal{{ inflow.id }}" tabindex="-1"
+                        aria-labelledby="payOutflowLabel{{ inflow.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="{% url 'inflow_pay' inflow.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="payInflowLabel{{ inflow.id }}">Registrar Pagamento</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-2">
+                                            <label for="payment_date">Data do Pagamento</label>
+                                            <input type="date" name="payment_date" class="form-control" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="bank_id">Banco</label>
+                                            <select name="bank_id" class="form-control" required>
+                                                {% for bank in banks %}
+                                                <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-success">Confirmar Pagamento</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                            {% endif %}
+                            <!-- Botão para abrir o modal de edição do fornecedor -->
+                            <button type="button" class="btn btn-outline-warning btn-sm me-1" data-bs-toggle="modal"
+                                data-bs-target="#editInflowModal{{ inflow.id }}" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <!-- Modal de edição do fornecedor -->
+                            <div class="modal fade" id="editInflowModal{{ inflow.id }}" tabindex="-1"
+                                aria-labelledby="editOutflowLabel{{ inflow.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" action="{% url 'inflow_update' inflow.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editInflowLabel{{ inflow.id }}">{{inflow.title}}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-2">
+                                                    <label for="created_date">Data de Criação</label>
+                                                    <input type="date" name="created_date" class="form-control"
+                                                        value="{{ inflow.created_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="expire_date">Data de Vencimento</label>
+                                                    <input type="date" name="expire_date" class="form-control"
+                                                        value="{{ inflow.expire_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Fornecedor</label>
+                                                    <select name="supplier" class="form-control">
+                                                        {% for supplier in suppliers %}
+                                                        <option value="{{ supplier.id }}" {% if inflow.supplier.id == supplier.id%}selected{% endif %}>
+                                                            {{ supplier.company_name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Plano de Contas</label>
+                                                    <select name="accounting" class="form-control">
+                                                        {% for conta in accountings %}
+                                                        <option value="{{ conta.id }}" {% if inflow.accounting.id == conta.id%}selected{% endif %}>
+                                                            {{ conta.acc_name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Forma de Pagamento</label>
+                                                    <select name="payment_method" class="form-control">
+                                                        {% for plano in payments %}
+                                                        <option value="{{ plano.id }}" {% if inflow.payment_method.id == plano.id%}selected{% endif %}>
+                                                            {{ plano.name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label>Valor</label>
+                                                    <input type="number" step="0.01" name="value" class="form-control"
+                                                        value="{{ inflow.value }}">
+                                                </div>
+                                               <div class="mb-2">
+                                                    <label>Status</label>
+                                                    <select name="status" class="form-control">
+                                                        <option value="NP" {% if inflow.status == 'NP' %}selected{% endif %}>Não Pago</option>
+                                                        <option value="PG" {% if inflow.status == 'PG' %}selected{% endif %}>Pago</option>
+                                                    </select>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="{% url 'inflow_detail' inflow.id %}" class="btn btn-outline-primary btn-sm me-1">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            
+                            <button type="button" class="btn btn-outline-danger btn-sm me-1"
+                                data-bs-toggle="modal" data-bs-target="#deleteInflowModal{{ inflow.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                            <!-- Modal Excluir -->
+                            <div class="modal fade" id="deleteInflowModal{{ inflow.id }}" tabindex="-1"
+                                aria-labelledby="deleteModalLabel{{ inflow.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content border-0 shadow">
+                                        <form method="post" action="{% url 'inflow_delete' inflow.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title" id="deleteModalLabel{{ inflow.id }}">Excluir Lançamento</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Deseja realmente excluir o lançamento de <strong>{{ inflow.supplier.company_name }}</strong> no valor de <strong>R$ {{ inflow.value|floatformat:2 }}</strong>?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Excluir</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Nenhum lançamento cadastrado ainda.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

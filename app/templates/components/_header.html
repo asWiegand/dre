@@ -1,39 +1,53 @@
-<nav class="container-fluid navbar navbar-expand-lg navbar-light bg-dark fixed-top">
-  <div>
-    <i class="me-2"></i>
-    <a class="navbar-brand text-white me-2" href="{% url 'home' %}">Home</a>
-  </div>
-  <!-- Example single danger button -->
-  <div class="btn-group">
-    <button type="button" class="btn btn-primary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
-      Caixa
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+      <i class="bi bi-speedometer2 me-1"></i> DRE
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
+      <span class="navbar-toggler-icon"></span>
     </button>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="{% url 'moviment_list' %}">Lançamentos</a></li>
-      <li><a class="dropdown-item" href="{% url 'outflow_list' %}">Contas à Pagar</a></li>
-      <li><a class="dropdown-item" href="{% url 'inflow_list' %}">Contas à Receber</a></li>
-    </ul>
-  </div>
-  <div class="btn-group">
-    <button type="button" class="btn btn-primary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="true">
-      Cadastros
-    </button>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="{% url 'supplier_list' %}">Clientes/Fornecedores</a></li>
-      <li><a class="dropdown-item" href="{% url 'bank_list' %}">Bancos</a></li>
-      <li><a class="dropdown-item" href="{% url 'accounting_list' %}">Plano de Contas</a></li>
-      <li><a class="dropdown-item" href="{% url 'payment_list' %}">Formas de Pagamento</a></li>
-    </ul>
-  </div>
-   <div class="btn-group">
-    <button type="button" class="btn btn-primary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
-      Relatórios
-    </button>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="{% url 'report' %}">Relatório Plano de Contas</a></li>
-      <li><a class="dropdown-item" href="{% url 'outflow_report' %}">Relatório Contas à Pagar</a></li>
-    </ul>
+
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        
+        <!-- Caixa -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            Caixa
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'moviment_list' %}">Lançamentos</a></li>
+            <li><a class="dropdown-item" href="{% url 'outflow_list' %}">Contas à Pagar</a></li>
+            <li><a class="dropdown-item" href="{% url 'inflow_list' %}">Contas à Receber</a></li>
+          </ul>
+        </li>
+
+        <!-- Cadastros -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            Cadastros
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'supplier_list' %}">Clientes/Fornecedores</a></li>
+            <li><a class="dropdown-item" href="{% url 'bank_list' %}">Bancos</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounting_list' %}">Plano de Contas</a></li>
+            <li><a class="dropdown-item" href="{% url 'payment_list' %}">Formas de Pagamento</a></li>
+          </ul>
+        </li>
+
+        <!-- Relatórios -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            Relatórios
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'report' %}">Relatório Plano de Contas</a></li>
+            <li><a class="dropdown-item" href="{% url 'outflow_report' %}">Relatório Contas à Pagar</a></li>
+            <li><a class="dropdown-item" href="{% url 'inflow_report' %}">Relatório Contas à Receber</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>
-
-<div class="container-fluid" style="padding-top: 70px;"></div>

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Detalhes da Conta a Receber{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Detalhes da Conta a Receber</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Cliente:</strong> {{ object.supplier }}</p>
+            <p><strong>Data de Emissão:</strong> {{ object.created_date|date:"d/m/Y" }}</p>
+            <p><strong>Valor:</strong> R$ {{ object.value|floatformat:2 }}</p>
+            <p><strong>Forma de Pagamento:</strong> {{ object.payment_method }}</p>
+            <p><strong>Plano de Contas:</strong> {{ object.accounting }}</p>
+            <p><strong>Status:</strong>
+                {% if object.status == 'PG' %}
+                    <span class="badge bg-success">Recebido</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Pendente</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="card-footer text-end">
+            <a href="{% url 'inflow_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

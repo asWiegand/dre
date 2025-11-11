@@ -1,15 +1,113 @@
 {% extends 'base.html' %}
+{% block title %}Detalhes - Conta à Pagar{% endblock %}
 
 {% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Detalhes da Contas a Pagar</h3>
-
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title">{{ object.title }}</h3>
-      </div>
+<div class="container mt-4">
+    <h3>Detalhes da Conta à Pagar</h3>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ object.title }}</h5>
+            <p><strong>Fornecedor:</strong> {{ object.supplier }}</p>
+            <p><strong>Data de Criação:</strong> {{ object.created_date|date:"d/m/Y" }}</p>
+            <p><strong>Data de Vencimento:</strong> {{ object.expire_date|date:"d/m/Y" }}</p>
+            <p><strong>Valor:</strong> R$ {{ object.value|floatformat:2 }}</p>
+            <p><strong>Plano de Contas:</strong> {{ object.accounting.acc_name }}</p>
+            <p><strong>Forma de Pagamento:</strong> {{ object.payment_method.name }}</p>
+            <p><strong>Status:</strong> 
+                {% if object.status == 'PG' %}
+                    <span class="badge bg-success">Pago</span>
+                {% elif object.status == 'NP' %}
+                    <span class="badge bg-danger">Não Pago</span>
+                {% endif %}
+            </p>
+            {% if object.payment_date %}
+            <p><strong>Data do Pagamento:</strong> {{ object.payment_date|date:"d/m/Y" }}</p>
+            {% endif %}
+        </div>
     </div>
 
-    <a href="{% url 'outflow_list' %}" class="btn btn-secondary mt-3">Voltar</a>
-  </div>
+    <div class="mt-3">
+        <a href="{% url 'outflow_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+
+        {% if object.status == 'NP' %}
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+            data-bs-target="#editOutflowModal{{ object.id }}">
+            <i class="bi bi-pencil"></i> Editar
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+{% if object.status == 'NP' %}
+<!-- Modal de edição -->
+<div class="modal fade" id="editOutflowModal{{ object.id }}" tabindex="-1"
+    aria-labelledby="editOutflowLabel{{ object.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'outflow_update' object.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editOutflowLabel{{ object.id }}">Editar Conta à Pagar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label for="created_date">Data de Criação</label>
+                        <input type="date" name="created_date" class="form-control"
+                            value="{{ object.created_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="mb-2">
+                        <label for="expire_date">Data de Vencimento</label>
+                        <input type="date" name="expire_date" class="form-control"
+                            value="{{ object.expire_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="mb-2">
+                        <label>Fornecedor</label>
+                        <select name="supplier" class="form-control">
+                            {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}" {% if object.supplier.id == supplier.id %}selected{% endif %}>
+                                {{ supplier.company_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Plano de Contas</label>
+                        <select name="accounting" class="form-control">
+                            {% for conta in accountings %}
+                            <option value="{{ conta.id }}" {% if object.accounting.id == conta.id %}selected{% endif %}>
+                                {{ conta.acc_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Forma de Pagamento</label>
+                        <select name="payment_method" class="form-control">
+                            {% for plano in payments %}
+                            <option value="{{ plano.id }}" {% if object.payment_method.id == plano.id %}selected{% endif %}>
+                                {{ plano.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Valor</label>
+                        <input type="number" step="0.01" name="value" class="form-control"
+                            value="{{ object.value }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

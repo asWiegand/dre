@@ -71,11 +71,11 @@ class InflowDeleteView(DeleteView):
     template_name = 'inflow_list.html'
     success_url = reverse_lazy('inflow_list')
 
-class OutflowDetailView(DetailView):
+class InflowDetailView(DetailView):
     model = models.Inflow
-    #template_name = 'outflow_detail.html'
+    template_name = 'inflow_detail.html'
 
-class OutflowUpdateView(UpdateView):
+class InflowUpdateView(UpdateView):
     model = models.Inflow
     template_name = 'inflow_list.html'
     form_class = forms.InflowUpdateForm
@@ -138,7 +138,7 @@ def inflow_report(request):
     total_np = inflows.filter(status='NP').aggregate(total=Sum('value'))['total'] or 0
 
     return render(request, 'inflow_report.html', {
-        'outflows': inflows,
+        'inflows': inflows,
         'total_np': total_np,
         'month_choices': month_choices,
         'years_choices': years_choices,

@@ -1,72 +1,97 @@
-<!-- home.html -->
 {% extends 'base.html' %}
-{% block title %}DRE - Home{% endblock %}
+{% block title %}DRE - Dashboard{% endblock %}
 
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="row mt-4 justify-content-center">
-  <div class="col-md-6 text-center">
-    <h5 class="text-center mb-3">Saldo por Banco</h5>
-    <canvas id="bankChart"></canvas>
+<div class="container-fluid mt-4">
+  <div class="row text-center mb-4">
+    <div class="col">
+      <h2 class="fw-semibold text-dark">Dashboard Financeiro</h2>
+      <p class="text-muted">Resumo visual dos dados do sistema DRE</p>
+    </div>
   </div>
-  <div class="col-md-6 text-center">
-    <h5 class="text-center mb-3">Movimentações por Plano de Contas</h5>
-    <canvas id="accountingChart"></canvas>
+
+  <div class="row g-4 justify-content-center">
+    <!-- Saldo por Banco -->
+    <div class="col-md-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-center mb-3">
+            <i class="bi bi-bank2 me-2 text-primary"></i>Saldo por Banco
+          </h5>
+          <canvas id="bankChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Movimentações por Plano de Contas -->
+    <div class="col-md-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-center mb-3">
+            <i class="bi bi-pie-chart-fill me-2 text-success"></i>Movimentações por Plano de Contas
+          </h5>
+          <canvas id="accountingChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    var bankData = JSON.parse('{{ bank_chart_data|safe }}');
-    var accountingData = JSON.parse('{{ accounting_chart_data|safe }}');
+document.addEventListener("DOMContentLoaded", function () {
+  var bankData = JSON.parse('{{ bank_chart_data|safe }}');
+  var accountingData = JSON.parse('{{ accounting_chart_data|safe }}');
 
-    new Chart(document.getElementById("bankChart"), {
-      type: 'bar',
-      data: {
-        labels: bankData.labels,
-        datasets: [{
-          label: 'Saldo (R$)',
-          data: bankData.values,
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1
-        }]
+  // Gráfico de barras - Bancos
+  new Chart(document.getElementById("bankChart"), {
+    type: 'bar',
+    data: {
+      labels: bankData.labels,
+      datasets: [{
+        label: 'Saldo (R$)',
+        data: bankData.values,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
       },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
+      scales: {
+        y: { beginAtZero: true }
       }
-    });
-
-    new Chart(document.getElementById("accountingChart"), {
-      type: 'pie',
-      data: {
-        labels: accountingData.labels,
-        datasets: [{
-          data: accountingData.values,
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
-            'rgba(255, 206, 86, 0.6)',
-            'rgba(75, 192, 192, 0.6)',
-            'rgba(153, 102, 255, 0.6)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        plugins: {
-          legend: {
-            position: 'right'
-          }
-        }
-      }
-    });
+    }
   });
+
+  // Gráfico de pizza - Plano de Contas
+  new Chart(document.getElementById("accountingChart"), {
+    type: 'pie',
+    data: {
+      labels: accountingData.labels,
+      datasets: [{
+        data: accountingData.values,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.6)',
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(255, 206, 86, 0.6)',
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(153, 102, 255, 0.6)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'right' }
+      }
+    }
+  });
+});
 </script>
 
 {% endblock %}

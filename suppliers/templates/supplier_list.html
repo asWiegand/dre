@@ -1,36 +1,42 @@
 {% extends 'base.html' %}
-{% block title %}DRE - Clientes/Fornecedores{% endblock %}
-
-
-
+{% load static %}
+{% block title %}DRE - Clientes / Fornecedores{% endblock %}
 
 {% block content %}
-<div>
-    <h3>Clientes / Fornecedores</h3>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
-        Novo
-    </button>
-    <!-- Modal -->
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary mb-0">Clientes / Fornecedores</h3>
+        <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+            <i class="bi bi-plus-lg me-1"></i> Novo
+        </button>
+    </div>
+
+    <!-- Modal de Adição -->
     <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="supplierModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
                 <form method="post">
                     {% csrf_token %}
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="supplierModalLabel">Novo Cliente/Fornecedor</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="supplierModalLabel">Novo Cliente / Fornecedor</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     <div class="modal-body">
                         {{ form.as_p }}
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Salvar</button>
-                        <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i>Salvar
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
     {% if form.errors %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -39,165 +45,160 @@
         });
     </script>
     {% endif %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
-    <script>
-        $(document).ready(function () {
-            const $cnpjCpf = $('#id_cnpj_cpf');
-            const $phone = $('#id_phone');
+    <!-- Tabela -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width: 70px;">ID</th>
+                        <th>Razão Social</th>
+                        <th>Nome Fantasia</th>
+                        <th class="text-end" style="width: 180px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conta in suppliers %}
+                    <tr>
+                        <td class="text-center">{{ conta.id }}</td>
+                        <td>{{ conta.company_name }}</td>
+                        <td>{{ conta.fantasy_name }}</td>
+                        <td class="text-end">
+                            <!-- Botão Editar -->
+                            <button type="button" class="btn btn-outline-primary btn-sm me-2"
+                                data-bs-toggle="modal" data-bs-target="#editSupplierModal{{ conta.id }}" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
 
-            // Opções de máscara para CPF/CNPJ
-            const options = {
-                onKeyPress: function (cpf, e, field, options) {
-                    // Remove a máscara antiga para verificar o comprimento real dos dígitos
-                    const digits = cpf.replace(/\D/g, '');
+                            <!-- Modal de Edição -->
+                            <div class="modal fade" id="editSupplierModal{{ conta.id }}" tabindex="-1"
+                                aria-labelledby="editSupplierLabel{{ conta.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content border-0 shadow">
+                                        <form method="post" action="{% url 'supplier_update' conta.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title" id="editSupplierLabel{{ conta.id }}">Editar Cliente / Fornecedor</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold">CNPJ / CPF</label>
+                                                        <input type="text" name="cnpj_cpf" class="form-control"
+                                                            placeholder="XXX.XXX.XXX-XX ou XX.XXX.XXX/XXXX-XX"
+                                                            value="{{ conta.cnpj_cpf }}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold">Telefone</label>
+                                                        <input type="text" name="phone" class="form-control"
+                                                            placeholder="(XX) XXXXX-XXXX" value="{{ conta.phone }}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold">Razão Social</label>
+                                                        <input type="text" name="company_name" class="form-control"
+                                                            value="{{ conta.company_name }}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold">Nome Fantasia</label>
+                                                        <input type="text" name="fantasy_name" class="form-control"
+                                                            value="{{ conta.fantasy_name }}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold">Cidade</label>
+                                                        <input type="text" name="city" class="form-control"
+                                                            value="{{ conta.city }}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold">Endereço</label>
+                                                        <input type="text" name="address" class="form-control"
+                                                            value="{{ conta.address }}">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="form-label fw-semibold">E-mail</label>
+                                                        <input type="email" name="email" class="form-control"
+                                                            placeholder="exemplo@email.com" value="{{ conta.email }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                                                </button>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="bi bi-save me-1"></i>Salvar Alterações
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
 
-                    // Define a máscara com base no número de dígitos
-                    // Se tiver 11 ou menos dígitos, usa a máscara de CPF.
-                    // Se tiver mais de 11, usa a de CNPJ.
-                    const mask = (digits.length > 11) ? '00.000.000/0000-00' : '000.000.000-00999';
+                            <!-- Botão Excluir -->
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                data-bs-toggle="modal" data-bs-target="#deleteSupplierModal{{ conta.id }}" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
 
-                    // Reaplica a máscara correta
-                    $cnpjCpf.mask(mask, options);
-                }
-            };
-
-            // Aplica a máscara inicial (uma máscara "flexível" de CPF que permite mais dígitos)
-            $cnpjCpf.mask('000.000.000-00999', options);
-
-            // Máscara para telefone
-            $phone.mask('(00) 00000-0000');
-        });
-    </script>
-
+                            <!-- Modal de Exclusão -->
+                            <div class="modal fade" id="deleteSupplierModal{{ conta.id }}" tabindex="-1"
+                                aria-labelledby="deleteModalLabel{{ conta.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content border-0 shadow">
+                                        <form method="post" action="{% url 'supplier_delete' conta.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title" id="deleteModalLabel{{ conta.id }}">Excluir Cliente / Fornecedor</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Tem certeza que deseja excluir o cliente/fornecedor
+                                                <strong>{{ conta.company_name }}</strong>?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    Cancelar
+                                                </button>
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="bi bi-trash me-1"></i>Excluir
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            Nenhum cliente ou fornecedor cadastrado ainda.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<div>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Razão Social</th>
-                <th>Nome Fantasia</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for conta in suppliers %}
-            <tr>
-                <td>{{ conta.id }}</td>
-                <td>{{ conta.company_name }}</td>
-                <td>{{ conta.fantasy_name }}</td>
-                <td>
-                    <!-- Botão para abrir o modal de edição do fornecedor -->
-                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#editSupplierModal{{ conta.id }}" title="Editar">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-
-                    <!-- Modal de edição do fornecedor -->
-                    <div class="modal fade" id="editSupplierModal{{ conta.id }}" tabindex="-1"
-                        aria-labelledby="editSupplierLabel{{ conta.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="post" action="{% url 'supplier_update' conta.id %}">
-                                    {% csrf_token %}
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editSupplierLabel{{ conta.id }}">Editar
-                                            Cliente/Fornecedor</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Fechar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-2">
-                                            <label for="cnpj_cpf">CNPJ/CPF</label>
-                                            <input type="text" name="cnpj_cpf" class="form-control"
-                                                placeholder="XXX.XXX.XXX-XX ou XX.XXX.XXX/XXXX-XX"
-                                                value="{{ conta.cnpj_cpf }}">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="company_name">Razão Social</label>
-                                            <input type="text" name="company_name" class="form-control"
-                                                value="{{ conta.company_name }}">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="fantasy_name">Nome Fantasia</label>
-                                            <input type="text" name="fantasy_name" class="form-control"
-                                                value="{{ conta.fantasy_name }}" default="">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="city">Cidade</label>
-                                            <input type="text" name="city" class="form-control"
-                                                value="{{ conta.city }}">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="address">Endereço</label>
-                                            <input type="text" name="address" class="form-control"
-                                                value="{{ conta.address }}">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="phone">Telefone</label>
-                                            <input type="text" name="phone" class="form-control"
-                                                placeholder="(XX) XXXXX-XXXX" value="{{ conta.phone }}">
-                                        </div>
-                                        <div class="mb-2">
-                                            <label for="email">E-mail</label>
-                                            <input type="email" name="email" class="form-control"
-                                                placeholder="exemplo@email.com" value="{{ conta.email }}">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-warning">Salvar Alterações</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botão de deletar -->
-                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#deleteSupplierModal{{ conta.id }}" title="Excluir">
-                        <i class="bi bi-trash"></i>
-                    </button>
-
-                    <!-- Modal de exclusão -->
-                    <div class="modal fade" id="deleteSupplierModal{{ conta.id }}" tabindex="-1"
-                        aria-labelledby="deleteModalLabel{{ conta.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="post" action="{% url 'supplier_delete' conta.id %}">
-                                    {% csrf_token %}
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteModalLabel{{ conta.id }}">Excluir
-                                            Cliente/Fornecedor</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Fechar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Tem certeza que deseja excluir o cliente/fornecedor </br><strong>{{
-                                            conta.company_name }}</strong>?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-danger">Excluir</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3">Nenhum banco cadastrado ainda.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
+<!-- Máscaras (CPF/CNPJ e Telefone) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const $cnpjCpf = $('#id_cnpj_cpf');
+        const $phone = $('#id_phone');
+        const options = {
+            onKeyPress: function (cpf, e, field, options) {
+                const digits = cpf.replace(/\D/g, '');
+                const mask = (digits.length > 11) ? '00.000.000/0000-00' : '000.000.000-00999';
+                $cnpjCpf.mask(mask, options);
+            }
+        };
+        $cnpjCpf.mask('000.000.000-00999', options);
+        $phone.mask('(00) 00000-0000');
+    });
+</script>
 {% endblock %}
