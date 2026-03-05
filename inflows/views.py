@@ -1,6 +1,6 @@
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, get_object_or_404, render
 from .models import Supplier, Accounting, Payment, Inflow
 from moviments.models import Moviment
@@ -12,7 +12,8 @@ from . import models, forms
 from django.urls import reverse_lazy
 from django.db.models import Sum
 
-class InflowListView(LoginRequiredMixin, ListView):
+class InflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'inflows.view_inflow'
     model = Inflow
     template_name = 'inflow_list.html'
     context_object_name = 'inflows'
@@ -22,7 +23,8 @@ class InflowListView(LoginRequiredMixin, ListView):
         context['banks'] = Bank.objects.all()
         return context
 
-class CreateInflowView(LoginRequiredMixin, CreateView):
+class CreateInflowView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = 'inflows.add_inflow'
     model = Inflow
     form_class = InflowForm
     template_name = 'inflow_form.html'
@@ -66,16 +68,19 @@ class CreateInflowView(LoginRequiredMixin, CreateView):
 
         return redirect(self.success_url)
 
-class InflowDeleteView(LoginRequiredMixin, DeleteView):
+class InflowDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'inflows.delete_inflow'
     model = models.Inflow
     template_name = 'inflow_confirm_delete.html'
     success_url = reverse_lazy('inflow_list')
 
-class InflowDetailView(LoginRequiredMixin, DetailView):
+class InflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    permission_required = 'inflows.view_inflow'
     model = models.Inflow
     template_name = 'inflow_detail.html'
 
-class InflowUpdateView(LoginRequiredMixin, UpdateView):
+class InflowUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = 'inflows.change_inflow'
     model = models.Inflow
     template_name = 'inflow_form.html'
     form_class = forms.InflowUpdateForm
@@ -83,6 +88,7 @@ class InflowUpdateView(LoginRequiredMixin, UpdateView):
 
 
 @login_required
+@permission_required('inflows.change_inflow', raise_exception=True)
 def pay_inflow(request, pk):
     inflow = get_object_or_404(Inflow, pk=pk)
 
@@ -115,6 +121,7 @@ def pay_inflow(request, pk):
 
 
 @login_required
+@permission_required('inflows.view_inflow', raise_exception=True)
 def inflow_report(request):
     # Pega parâmetros de filtro
     start_date = request.GET.get('start_date')

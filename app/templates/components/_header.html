@@ -31,6 +31,7 @@
         </li>
 
         <!-- Caixa Menu -->
+        {% if perms.inflows.view_inflow or perms.outflows.view_outflow or perms.moviments.view_moviment %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle fw-medium px-3 text-secondary" href="#" id="caixaDropdown" role="button"
             data-bs-toggle="dropdown" aria-expanded="false">
@@ -40,19 +41,27 @@
             <li>
               <h6 class="dropdown-header text-uppercase small fw-bold text-primary">Operações</h6>
             </li>
+            {% if perms.inflows.view_inflow %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'inflow_list' %}"><i
                   class="bi bi-box-arrow-in-right text-success me-2"></i>Contas a Receber</a></li>
+            {% endif %}
+            {% if perms.outflows.view_outflow %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'outflow_list' %}"><i
                   class="bi bi-box-arrow-up-right text-danger me-2"></i>Contas a Pagar</a></li>
+            {% endif %}
             <li>
               <hr class="dropdown-divider">
             </li>
+            {% if perms.moviments.view_moviment %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'moviment_list' %}"><i
                   class="bi bi-arrow-left-right text-primary me-2"></i>Todas as Movimentações</a></li>
+            {% endif %}
           </ul>
         </li>
+        {% endif %}
 
         <!-- Cadastros Menu -->
+        {% if perms.suppliers.view_supplier or perms.banks.view_bank or perms.accountings.view_accounting or perms.payments.view_payment %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle fw-medium px-3 text-secondary" href="#" id="cadastrosDropdown"
             role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -63,24 +72,34 @@
             <li>
               <h6 class="dropdown-header text-uppercase small fw-bold text-primary">Entidades</h6>
             </li>
+            {% if perms.suppliers.view_supplier %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'supplier_list' %}"><i
                   class="bi bi-people me-2 text-secondary"></i>Fornecedores/Clientes</a></li>
+            {% endif %}
+            {% if perms.banks.view_bank %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'bank_list' %}"><i
                   class="bi bi-bank me-2 text-secondary"></i>Contas Bancárias</a></li>
+            {% endif %}
             <li>
               <hr class="dropdown-divider">
             </li>
             <li>
               <h6 class="dropdown-header text-uppercase small fw-bold text-primary">Estrutura</h6>
             </li>
+            {% if perms.accountings.view_accounting %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'accounting_list' %}"><i
                   class="bi bi-tags me-2 text-secondary"></i>Planos de Conta</a></li>
+            {% endif %}
+            {% if perms.payments.view_payment %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'payment_list' %}"><i
                   class="bi bi-credit-card me-2 text-secondary"></i>Formas de Pagamento</a></li>
+            {% endif %}
           </ul>
         </li>
+        {% endif %}
 
         <!-- Relatórios Menu -->
+        {% if perms.inflows.view_inflow or perms.outflows.view_outflow %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle fw-medium px-3 text-secondary" href="#" id="relatoriosDropdown"
             role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -93,12 +112,17 @@
             <li>
               <hr class="dropdown-divider">
             </li>
+            {% if perms.inflows.view_inflow %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'inflow_report' %}"><i
                   class="bi bi-file-earmark-arrow-down text-success me-2"></i>Receitas (Inflows)</a></li>
+            {% endif %}
+            {% if perms.outflows.view_outflow %}
             <li><a class="dropdown-item py-2 fw-medium" href="{% url 'outflow_report' %}"><i
                   class="bi bi-file-earmark-arrow-up text-danger me-2"></i>Despesas (Outflows)</a></li>
+            {% endif %}
           </ul>
         </li>
+        {% endif %}
 
         <!-- User Dropdown (Logout) -->
         <li class="nav-item border-start ms-2 ps-2">

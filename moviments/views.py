@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, UpdateView, DeleteView, DetailView, CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from . import models, forms
 from django.urls import reverse_lazy
 from .models import Moviment, Bank, Accounting
 from datetime import datetime
 from .forms import MovimentForm
 
-class MovimentListView(LoginRequiredMixin, ListView):
+class MovimentListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'moviments.view_moviment'
     model = Moviment
     template_name = "moviment_list.html"
     context_object_name = "moviments"
@@ -41,24 +42,28 @@ class MovimentListView(LoginRequiredMixin, ListView):
         context['field'] = self.request.GET.get('field', '')
         return context
 
-class MovimentCreateView(LoginRequiredMixin, CreateView):
+class MovimentCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = 'moviments.add_moviment'
     model = models.Moviment
     template_name = 'moviment_form.html'
     form_class = forms.MovimentForm
     success_url = reverse_lazy('moviment_list')
 
-class MovimentUpdateView(LoginRequiredMixin, UpdateView):
+class MovimentUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = 'moviments.change_moviment'
     model = models.Moviment
     template_name = 'moviment_form.html'
     form_class = forms.MovimentForm
     success_url = reverse_lazy('moviment_list')
 
-class MovimentDeleteView(LoginRequiredMixin, DeleteView):
+class MovimentDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'moviments.delete_moviment'
     model = models.Moviment
     template_name = 'moviment_confirm_delete.html'
     success_url = reverse_lazy('moviment_list')
 
-class MovimentDetailView(LoginRequiredMixin, DetailView):
+class MovimentDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    permission_required = 'moviments.view_moviment'
     model = models.Moviment
     template_name = 'moviment_list.html'  # Pode ser desnecessário ou separado no futuro
 

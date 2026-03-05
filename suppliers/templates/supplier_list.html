@@ -13,9 +13,11 @@
             <p class="text-muted mb-0">Gerencie a rede de parceiros comerciais</p>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            {% if perms.suppliers.add_supplier %}
             <a href="{% url 'supplier_create' %}" class="btn btn-primary btn-lg shadow-sm rounded-3 px-4">
                 <i class="bi bi-plus-lg me-2"></i>Novo Cadastro
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -46,16 +48,20 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="d-flex justify-content-center gap-2">
+                                {% if perms.suppliers.change_supplier %}
                                 <a href="{% url 'supplier_update' supplier.id %}"
                                     class="btn btn-light btn-sm rounded-circle shadow-sm"
                                     style="width: 35px; height: 35px; padding: 0.45rem;" title="Editar">
                                     <i class="bi bi-pencil text-primary"></i>
                                 </a>
+                                {% endif %}
+                                {% if perms.suppliers.delete_supplier %}
                                 <a href="{% url 'supplier_delete' supplier.id %}"
                                     class="btn btn-light btn-sm rounded-circle shadow-sm"
                                     style="width: 35px; height: 35px; padding: 0.45rem;" title="Excluir">
                                     <i class="bi bi-trash text-danger"></i>
                                 </a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -67,8 +73,10 @@
                                 <h4 class="text-dark fw-bold">Nenhum parceiro comercial encontrado</h4>
                                 <p class="text-muted mb-4">A lista de clientes e fornecedores está vazia. Adicione novas
                                     entidades para integrá-las ao fluxo de caixa.</p>
+                                {% if perms.suppliers.add_supplier %}
                                 <a href="{% url 'supplier_create' %}"
                                     class="btn btn-outline-primary rounded-pill px-5 shadow-sm">Cadastrar Agora</a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>

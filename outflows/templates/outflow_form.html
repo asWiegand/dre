@@ -12,8 +12,8 @@ DRE - {% if object %}Editar Despesa{% else %}Nova Despesa{% endif %}
             <i class="bi bi-arrow-left fs-5"></i>
         </a>
         <div>
-            <h3 class="fw-bold text-dark mb-0">{% if object %}Editar Conta a Pagar{% else %}Nova Conta a Pagar{% endif
-                %}</h3>
+            <h3 class="fw-bold text-dark mb-0">{% if object %}Editar Conta a Pagar{% else %}Nova Conta a Pagar
+                {% endif %}</h3>
             <p class="text-muted mb-0">Registre e controle as obrigações da empresa</p>
         </div>
     </div>
@@ -30,8 +30,8 @@ DRE - {% if object %}Editar Despesa{% else %}Nova Despesa{% endif %}
                             {% for field in form %}
                             <div
                                 class="col-md-{% if field.name == 'title' or field.name == 'description' %}12{% else %}6{% endif %}">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">{{
-                                    field.label }}</label>
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">
+                                    {{ field.label }}</label>
 
                                 {% if field.name == 'value' %}
                                 <div class="input-group">

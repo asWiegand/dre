@@ -12,9 +12,11 @@
             <p class="text-muted mb-0">Gestão de recebimentos, clientes e prazos</p>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            {% if perms.inflows.add_inflow %}
             <a href="{% url 'inflow_create' %}" class="btn btn-success btn-lg shadow-sm rounded-3 px-4">
                 <i class="bi bi-plus-lg me-2"></i>Novo Lançamento
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -70,7 +72,7 @@
                         <td class="px-4 py-3 text-center">
                             <div class="d-flex justify-content-center gap-2">
 
-                                {% if inflow.status != 'PG' %}
+                                {% if inflow.status != 'PG' and perms.inflows.change_inflow %}
                                 <button type="button" class="btn btn-success btn-sm rounded-circle shadow-sm text-white"
                                     style="width: 35px; height: 35px; padding: 0.45rem;" data-bs-toggle="modal"
                                     data-bs-target="#payInflowModal{{ inflow.id }}" title="Marcar como Pago">
@@ -78,25 +80,31 @@
                                 </button>
                                 {% endif %}
 
+                                {% if perms.inflows.view_inflow %}
                                 <a href="{% url 'inflow_detail' inflow.id %}"
                                     class="btn btn-light btn-sm rounded-circle shadow-sm"
                                     style="width: 35px; height: 35px; padding: 0.45rem;" title="Detalhes">
                                     <i class="bi bi-search text-secondary"></i>
                                 </a>
+                                {% endif %}
+                                {% if perms.inflows.change_inflow %}
                                 <a href="{% url 'inflow_update' inflow.id %}"
                                     class="btn btn-light btn-sm rounded-circle shadow-sm"
                                     style="width: 35px; height: 35px; padding: 0.45rem;" title="Editar">
                                     <i class="bi bi-pencil text-primary"></i>
                                 </a>
+                                {% endif %}
+                                {% if perms.inflows.delete_inflow %}
                                 <a href="{% url 'inflow_delete' inflow.id %}"
                                     class="btn btn-light btn-sm rounded-circle shadow-sm"
                                     style="width: 35px; height: 35px; padding: 0.45rem;" title="Excluir">
                                     <i class="bi bi-trash text-danger"></i>
                                 </a>
+                                {% endif %}
                             </div>
 
                             <!-- Modal de Pagamento modernizado -->
-                            {% if inflow.status != 'PG' %}
+                            {% if inflow.status != 'PG' and perms.inflows.change_inflow %}
                             <div class="modal fade text-start" id="payInflowModal{{ inflow.id }}" tabindex="-1"
                                 aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">

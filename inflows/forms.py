@@ -6,7 +6,8 @@ class InflowForm(forms.ModelForm):
         min_value=1,
         initial=1,
         help_text="Quantidade de parcelas (1 = à vista)",
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        label = "Parcelas",
     )
 
     class Meta:

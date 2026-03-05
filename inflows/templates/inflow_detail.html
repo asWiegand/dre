@@ -34,8 +34,7 @@
                         <div class="col-md-6">
                             <span class="d-block text-muted small fw-semibold text-uppercase mb-1">Cliente /
                                 Origem</span>
-                            <div class="fs-5 text-dark"><i class="bi bi-person me-2 text-secondary"></i>{{
-                                object.supplier }}</div>
+                            <div class="fs-5 text-dark"><i class="bi bi-person me-2 text-secondary"></i>{{ object.supplier }}</div>
                         </div>
                         <div class="col-md-6 text-md-end">
                             <span class="d-block text-muted small fw-semibold text-uppercase mb-1">Valor do
@@ -65,8 +64,7 @@
                             <div class="bg-light rounded-3 p-3 h-100 border">
                                 <span class="d-block text-muted small mb-1"><i
                                         class="bi bi-calendar-check me-1"></i>Pagamento</span>
-                                <span class="fw-medium text-dark">{{ object.payment_date|date:"d/m/Y"|default:"-"
-                                    }}</span>
+                                <span class="fw-medium text-dark">{{ object.payment_date|date:"d/m/Y"|default:"-" }}</span>
                             </div>
                         </div>
 
@@ -74,16 +72,14 @@
                             <div class="bg-light rounded-3 p-3 h-100 border">
                                 <span class="d-block text-muted small mb-1"><i class="bi bi-wallet2 me-1"></i>Forma de
                                     Pagamento</span>
-                                <span class="fw-medium text-dark">{{ object.payment_method|default:"Não informada"
-                                    }}</span>
+                                <span class="fw-medium text-dark">{{ object.payment_method|default:"Não informada" }}</span>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-6">
                             <div class="bg-light rounded-3 p-3 h-100 border">
                                 <span class="d-block text-muted small mb-1"><i class="bi bi-tag me-1"></i>Plano de
                                     Contas</span>
-                                <span class="fw-medium text-dark">{{ object.accounting|default:"Não categorizado"
-                                    }}</span>
+                                <span class="fw-medium text-dark">{{ object.accounting|default:"Não categorizado" }}</span>
                             </div>
                         </div>
                     </div>

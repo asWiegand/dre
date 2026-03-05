@@ -12,8 +12,8 @@ DRE - {% if object %}Editar Lançamento{% else %}Novo Lançamento (Receita){% en
             <i class="bi bi-arrow-left fs-5"></i>
         </a>
         <div>
-            <h3 class="fw-bold text-dark mb-0">{% if object %}Editar Recebimento{% else %}Novo Lançamento a Receber{%
-                endif %}</h3>
+            <h3 class="fw-bold text-dark mb-0">{% if object %}Editar Recebimento{% else %}Novo Lançamento a Receber
+                {% endif %}</h3>
             <p class="text-muted mb-0">Gestão de contas pré-lançadas da empresa</p>
         </div>
     </div>
@@ -30,8 +30,8 @@ DRE - {% if object %}Editar Lançamento{% else %}Novo Lançamento (Receita){% en
                             {% for field in form %}
                             <div
                                 class="col-md-{% if field.name == 'title' or field.name == 'description' %}12{% else %}6{% endif %}">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">{{
-                                    field.label }}</label>
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">
+                                    {{ field.label }}</label>
 
                                 {% if field.name == 'value' %}
                                 <div class="input-group">

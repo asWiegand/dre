@@ -1,6 +1,6 @@
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import redirect, get_object_or_404, render
 from .models import Outflow, Supplier, Accounting, Payment
 from moviments.models import Moviment
@@ -12,7 +12,8 @@ from . import models, forms
 from django.urls import reverse_lazy
 from django.db.models import Sum
 
-class OutflowListView(LoginRequiredMixin, ListView):
+class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'outflows.view_outflow'
     model = Outflow
     template_name = 'outflow_list.html'
     context_object_name = 'outflows'
@@ -22,7 +23,8 @@ class OutflowListView(LoginRequiredMixin, ListView):
         context['banks'] = Bank.objects.all()
         return context
 
-class CreateOutflowView(LoginRequiredMixin, CreateView):
+class CreateOutflowView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = 'outflows.add_outflow'
     model = Outflow
     form_class = OutflowForm
     template_name = 'outflow_form.html'
@@ -66,16 +68,19 @@ class CreateOutflowView(LoginRequiredMixin, CreateView):
 
         return redirect(self.success_url)
 
-class OutflowDeleteView(LoginRequiredMixin, DeleteView):
+class OutflowDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'outflows.delete_outflow'
     model = models.Outflow
     template_name = 'outflow_confirm_delete.html'
     success_url = reverse_lazy('outflow_list')
 
-class OutflowDetailView(LoginRequiredMixin, DetailView):
+class OutflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    permission_required = 'outflows.view_outflow'
     model = models.Outflow
     template_name = 'outflow_detail.html'
 
-class OutflowUpdateView(LoginRequiredMixin, UpdateView):
+class OutflowUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = 'outflows.change_outflow'
     model = models.Outflow
     template_name = 'outflow_form.html'
     form_class = forms.OutflowUpdateForm
@@ -83,6 +88,7 @@ class OutflowUpdateView(LoginRequiredMixin, UpdateView):
 
 
 @login_required
+@permission_required('outflows.change_outflow', raise_exception=True)
 def pay_outflow(request, pk):
     outflow = get_object_or_404(Outflow, pk=pk)
 
@@ -115,6 +121,7 @@ def pay_outflow(request, pk):
 
 
 @login_required
+@permission_required('outflows.view_outflow', raise_exception=True)
 def outflow_report(request):
     # Pega parâmetros de filtro
     start_date = request.GET.get('start_date')
