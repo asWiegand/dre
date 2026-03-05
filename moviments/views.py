@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, UpdateView, DeleteView, DetailView
+from django.views.generic import ListView, UpdateView, DeleteView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from . import models, forms
 from django.urls import reverse_lazy
 from .models import Moviment, Bank, Accounting
 from datetime import datetime
 from .forms import MovimentForm
 
-class MovimentListView(ListView):
+class MovimentListView(LoginRequiredMixin, ListView):
     model = Moviment
     template_name = "moviment_list.html"
     context_object_name = "moviments"
@@ -36,34 +37,28 @@ class MovimentListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = MovimentForm()
-        context['banks'] = Bank.objects.all()
-        context['accountings'] = Accounting.objects.all()
+        # O formulário não é mais necessário aqui, mas estamos passando os filtros
         context['field'] = self.request.GET.get('field', '')
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = MovimentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('moviment_list')
-        else:
-            context = self.get_context_data()
-            context['form'] = form
-            return render(request, self.template_name, context)
-        
-class MovimentDeleteView(DeleteView):
+class MovimentCreateView(LoginRequiredMixin, CreateView):
     model = models.Moviment
-    template_name = 'moviment_list.html'
-    success_url = reverse_lazy('moviment_list')
-
-class MovimentUpdateView(UpdateView):
-    model = models.Moviment
-    template_name = 'moviment_list.html'
+    template_name = 'moviment_form.html'
     form_class = forms.MovimentForm
     success_url = reverse_lazy('moviment_list')
 
-class MovimentDetailView(DetailView):
+class MovimentUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Moviment
-    template_name = 'moviment_list.html'
+    template_name = 'moviment_form.html'
+    form_class = forms.MovimentForm
+    success_url = reverse_lazy('moviment_list')
+
+class MovimentDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.Moviment
+    template_name = 'moviment_confirm_delete.html'
+    success_url = reverse_lazy('moviment_list')
+
+class MovimentDetailView(LoginRequiredMixin, DetailView):
+    model = models.Moviment
+    template_name = 'moviment_list.html'  # Pode ser desnecessário ou separado no futuro
 

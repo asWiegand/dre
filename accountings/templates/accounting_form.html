@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}
+DRE - {% if object %}Editar Plano de Contas{% else %}Novo Plano de Contas{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb e Voltar -->
+    <div class="mb-4 d-flex align-items-center">
+        <a href="{% url 'accounting_list' %}" class="btn btn-light shadow-sm text-secondary me-3"
+            style="border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+        <div>
+            <h3 class="fw-bold text-dark mb-0">{% if object %}Editar Categoria{% else %}Novo Plano de Conta{% endif %}
+            </h3>
+            <p class="text-muted mb-0">Organize e descreva essa categorização</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-5">
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row g-4">
+                            {% for field in form %}
+                            <div class="col-md-{% if field.name == 'acc_name' %}12{% else %}6{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">{{
+                                    field.label }}</label>
+
+                                <div class="form-control-wrapper">
+                                    {{ field }}
+                                </div>
+
+                                {% if field.errors %}
+                                <div class="text-danger mt-1 small fw-medium">
+                                    <i class="bi bi-exclamation-circle me-1"></i>{{ field.errors|striptags }}
+                                </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                <div class="form-text text-muted small">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr class="my-5 border-light">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'accounting_list' %}"
+                                class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-medium">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 py-2 rounded-3 fw-bold shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Salvar Categoria
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control-wrapper input,
+    .form-control-wrapper select,
+    .form-control-wrapper textarea {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease-in-out;
+        width: 100%;
+        display: block;
+    }
+
+    .form-control-wrapper input:focus,
+    .form-control-wrapper select:focus,
+    .form-control-wrapper textarea:focus {
+        background-color: #fff;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        outline: none;
+    }
+</style>
+{% endblock %}

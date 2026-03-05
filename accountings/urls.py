@@ -1,10 +1,9 @@
 from django.urls import path
-from .views import AccountingCreateView, AccountingDeleteView
-#, MovimentDetailView, MovimentUpdateView
+from .views import AccountingListView, AccountingCreateView, AccountingUpdateView, AccountingDeleteView
 
 urlpatterns = [
-    path('accounting_list/', AccountingCreateView.as_view(), name='accounting_list'),
+    path('accountings/', AccountingListView.as_view(), name='accounting_list'),
+    path('accountings/create/', AccountingCreateView.as_view(), name='accounting_create'),
+    path('accountings/update/<int:pk>/', AccountingUpdateView.as_view(), name='accounting_update'),
     path('accountings/delete/<int:pk>/', AccountingDeleteView.as_view(), name='accounting_delete'),
-    #path('moviments/update/<int:pk>/', MovimentUpdateView.as_view(), name='moviment_update'),
-    #path('moviments/detail/<int:pk>/', MovimentDetailView.as_view(), name='moviment_detail'),
 ]

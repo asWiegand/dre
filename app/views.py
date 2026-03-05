@@ -5,7 +5,9 @@ from moviments.models import Moviment
 from django.db.models import Sum, Q
 import json, calendar
 from django.db.models.functions import ExtractMonth, ExtractYear
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def home_view(request):
     # Dados de saldo por banco
     banks = Bank.objects.all()
@@ -23,6 +25,7 @@ def home_view(request):
     }
     return render(request, 'home.html', context)
 
+@login_required
 def report_view(request):
     month = request.GET.get('month')
     year = request.GET.get('year')

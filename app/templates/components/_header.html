@@ -1,53 +1,154 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-      <i class="bi bi-speedometer2 me-1"></i> DRE
+<!-- Navbar Moderna -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm py-3 border-bottom">
+  <div class="container-fluid px-4 px-lg-5">
+
+    <!-- Logo/Brand -->
+    <a class="navbar-brand d-flex align-items-center fw-bold fs-4 text-primary" href="{% url 'home' %}">
+      <div
+        class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+        style="width: 40px; height: 40px;">
+        <i class="bi bi-bar-chart-fill"></i>
+      </div>
+      DRE<span class="text-dark">Sys</span>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
+    <!-- Toggle Button for Mobile -->
+    <button class="navbar-toggler border-0 shadow-none px-2" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Alternar navegação">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        
-        <!-- Caixa -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-            Caixa
+    <!-- Menu Links -->
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-2">
+        {% if request.user.is_authenticated %}
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a class="nav-link fw-medium px-3 {% if request.resolver_match.url_name == 'home' %}active text-primary{% else %}text-secondary{% endif %}"
+            href="{% url 'home' %}">
+            <i class="bi bi-house-door me-1"></i> Dashboard
           </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'moviment_list' %}">Lançamentos</a></li>
-            <li><a class="dropdown-item" href="{% url 'outflow_list' %}">Contas à Pagar</a></li>
-            <li><a class="dropdown-item" href="{% url 'inflow_list' %}">Contas à Receber</a></li>
+        </li>
+
+        <!-- Caixa Menu -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle fw-medium px-3 text-secondary" href="#" id="caixaDropdown" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-wallet2 me-1"></i> Caixa
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-4 mt-2" aria-labelledby="caixaDropdown">
+            <li>
+              <h6 class="dropdown-header text-uppercase small fw-bold text-primary">Operações</h6>
+            </li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'inflow_list' %}"><i
+                  class="bi bi-box-arrow-in-right text-success me-2"></i>Contas a Receber</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'outflow_list' %}"><i
+                  class="bi bi-box-arrow-up-right text-danger me-2"></i>Contas a Pagar</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'moviment_list' %}"><i
+                  class="bi bi-arrow-left-right text-primary me-2"></i>Todas as Movimentações</a></li>
           </ul>
         </li>
 
-        <!-- Cadastros -->
+        <!-- Cadastros Menu -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-            Cadastros
+          <a class="nav-link dropdown-toggle fw-medium px-3 text-secondary" href="#" id="cadastrosDropdown"
+            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-database me-1"></i> Cadastros
           </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'supplier_list' %}">Clientes/Fornecedores</a></li>
-            <li><a class="dropdown-item" href="{% url 'bank_list' %}">Bancos</a></li>
-            <li><a class="dropdown-item" href="{% url 'accounting_list' %}">Plano de Contas</a></li>
-            <li><a class="dropdown-item" href="{% url 'payment_list' %}">Formas de Pagamento</a></li>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-4 mt-2"
+            aria-labelledby="cadastrosDropdown">
+            <li>
+              <h6 class="dropdown-header text-uppercase small fw-bold text-primary">Entidades</h6>
+            </li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'supplier_list' %}"><i
+                  class="bi bi-people me-2 text-secondary"></i>Fornecedores/Clientes</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'bank_list' %}"><i
+                  class="bi bi-bank me-2 text-secondary"></i>Contas Bancárias</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <h6 class="dropdown-header text-uppercase small fw-bold text-primary">Estrutura</h6>
+            </li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'accounting_list' %}"><i
+                  class="bi bi-tags me-2 text-secondary"></i>Planos de Conta</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'payment_list' %}"><i
+                  class="bi bi-credit-card me-2 text-secondary"></i>Formas de Pagamento</a></li>
           </ul>
         </li>
 
-        <!-- Relatórios -->
+        <!-- Relatórios Menu -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-            Relatórios
+          <a class="nav-link dropdown-toggle fw-medium px-3 text-secondary" href="#" id="relatoriosDropdown"
+            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-graph-up me-1"></i> Relatórios
           </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'report' %}">Relatório Plano de Contas</a></li>
-            <li><a class="dropdown-item" href="{% url 'outflow_report' %}">Relatório Contas à Pagar</a></li>
-            <li><a class="dropdown-item" href="{% url 'inflow_report' %}">Relatório Contas à Receber</a></li>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-4 mt-2"
+            aria-labelledby="relatoriosDropdown">
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'report' %}"><i
+                  class="bi bi-file-earmark-bar-graph text-primary me-2"></i>DRE Consolidado</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'inflow_report' %}"><i
+                  class="bi bi-file-earmark-arrow-down text-success me-2"></i>Receitas (Inflows)</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{% url 'outflow_report' %}"><i
+                  class="bi bi-file-earmark-arrow-up text-danger me-2"></i>Despesas (Outflows)</a></li>
           </ul>
         </li>
+
+        <!-- User Dropdown (Logout) -->
+        <li class="nav-item border-start ms-2 ps-2">
+          <div class="dropdown">
+            <button
+              class="btn btn-light dropdown-toggle d-flex align-items-center gap-2 rounded-pill px-3 shadow-sm border"
+              type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle fs-5 text-primary"></i>
+              <span class="fw-medium text-dark">{{ request.user.username }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-4 mt-2" aria-labelledby="userMenu">
+              <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <li><button type="submit" class="dropdown-item py-2 fw-medium text-danger"><i
+                      class="bi bi-box-arrow-right me-2"></i>Sair</button></li>
+              </form>
+            </ul>
+          </div>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>
 </nav>
+
+<style>
+  /* Efeito de hover suave nos itens do menu principal e dropdowns */
+  .navbar .nav-link {
+    transition: color 0.2s ease-in-out;
+  }
+
+  .navbar .nav-link:hover {
+    color: #0d6efd !important;
+  }
+
+  .dropdown-item {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    border-radius: 0.375rem;
+    margin: 0 0.25rem;
+    width: auto;
+  }
+
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+  }
+
+  /* Ajuste de padding extra no topo do main para compensar a navbar maior */
+  body>main {
+    padding-top: 100px !important;
+  }
+</style>

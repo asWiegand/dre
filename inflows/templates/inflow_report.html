@@ -1,53 +1,120 @@
 {% extends 'base.html' %}
-{% block title %}Relatório - Contas a Receber{% endblock %}
+{% block title %}DRE - Relatório Contas a Receber{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Relatório - Contas a Receber</h5>
-            <form method="get" class="d-flex align-items-center gap-2">
-                <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
-                <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
-                <button type="submit" class="btn btn-light text-success fw-semibold border">
-                    <i class="bi bi-filter me-1"></i>Filtrar
-                </button>
-            </form>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-12">
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="bi bi-box-arrow-in-right text-success me-2"></i>Contas a Receber
+            </h2>
+            <p class="text-muted mb-0">Relatório de receitas e faturamentos projetados</p>
         </div>
-        <div class="card-body p-0">
-            <table class="table table-striped align-middle mb-0">
-                <thead>
+    </div>
+
+    <!-- Filtro Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="start_date" class="form-label text-muted fw-semibold small text-uppercase">Data
+                                Inicial (Vencimento)</label>
+                            <input type="date" name="start_date" id="start_date"
+                                class="form-control form-control-lg bg-light border-0" value="{{ start_date }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="end_date" class="form-label text-muted fw-semibold small text-uppercase">Data
+                                Final (Vencimento)</label>
+                            <input type="date" name="end_date" id="end_date"
+                                class="form-control form-control-lg bg-light border-0" value="{{ end_date }}">
+                        </div>
+                        <div class="col-md-4 d-grid">
+                            <button type="submit" class="btn btn-success btn-lg border-0 shadow-sm fw-bold">
+                                <i class="bi bi-funnel me-2"></i>Filtrar Receitas
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
                     <tr>
-                        <th>Data</th>
-                        <th>Titulo</th>
-                        <th>Cliente</th>
-                        <th>Valor (R$)</th>
-                        <th>Status</th>
+                        <th class="py-3 px-4 text-secondary fw-semibold border-0">Vencimento</th>
+                        <th class="py-3 px-4 text-secondary fw-semibold border-0">Título Interno</th>
+                        <th class="py-3 px-4 text-secondary fw-semibold border-0">Origem (Cliente)</th>
+                        <th class="py-3 px-4 text-secondary fw-semibold border-0 text-center">Status do Faturamento</th>
+                        <th class="py-3 px-4 text-secondary fw-semibold border-0 text-end">Valor da Quota R$</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="border-top-0">
                     {% for inflow in inflows %}
                     <tr>
-                        <td>{{ inflow.expire_date|date:"d/m/Y" }}</td>
-                        <td>{{ inflow.title }}</td>
-                        <td>{{ inflow.supplier }}</td>
-                        <td>R$ {{ inflow.value|floatformat:2 }}</td>
-                        <td>{{ inflow.status }}</td>
+                        <td class="px-4 py-3 text-muted">
+                            <i class="bi bi-calendar-event me-2"></i>{{ inflow.expire_date|date:"d/m/Y" }}
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="fw-bold text-dark">{{ inflow.title }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-secondary"><i class="bi bi-person me-1"></i>{{ inflow.supplier }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if inflow.status == 'PG' %}
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success border px-2 py-1 rounded-pill">Recebido</span>
+                            {% else %}
+                            <span
+                                class="badge bg-warning bg-opacity-10 text-warning border px-2 py-1 rounded-pill">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-end">
+                            <span class="fw-bold text-success">+ {{ inflow.value|floatformat:2 }}</span>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">Nenhum lançamento encontrado.</td>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="p-4">
+                                <i class="bi bi-inbox display-4 text-muted mb-3 opacity-50"></i>
+                                <h5 class="text-dark fw-bold">Sem vendas ou contratos faturados</h5>
+                                <p class="text-muted mb-0">Nenhuma verba para receber selecionada ou aguardando nesta
+                                    data.</p>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
-                <tfoot>
-                    <tr class="table-light fw-bold">
-                        <td colspan="3" class="text-end">Total:</td>
-                        <td colspan="2">R$ {{ total_np|floatformat:2 }}</td>
-                    </tr>
-                </tfoot>
             </table>
         </div>
     </div>
+
+    <!-- Indicador de Resumo (Pendências ou Total) -->
+    {% if total_np %}
+    <div class="row">
+        <div class="col-md-6 ms-auto">
+            <div class="card border-0 bg-success bg-opacity-10 shadow-sm rounded-4">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-success fw-bold text-uppercase mb-1">Títulos não compensados</h6>
+                        <span class="text-dark fw-medium small">Montante em aberto para caixa</span>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-success mb-0">R$ {{ total_np|floatformat:2 }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}

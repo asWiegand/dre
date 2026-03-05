@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}DRE - Excluir Despesa{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="bg-danger bg-opacity-10 px-4 py-5 text-center position-relative">
+                    <div class="position-absolute top-0 start-50 translate-middle mt-2">
+                        <div class="bg-white text-danger border border-danger border-opacity-25 rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                            style="width: 70px; height: 70px;">
+                            <i class="bi bi-trash3 fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-5 text-center mt-3">
+                    <h4 class="fw-bold text-dark mb-3">Confirmar Exclusão</h4>
+                    <p class="text-muted mb-4">Você tem certeza que deseja deletar permanentemente esta conta a pagar? A
+                        exclusão removerá essa despesa do fluxo financeiro e <strong>não poderá ser desfeita</strong>.
+                    </p>
+
+                    <div
+                        class="bg-light border border-danger border-opacity-10 rounded-3 p-3 mb-4 text-start shadow-sm position-relative overflow-hidden">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-danger bg-opacity-10"
+                            style="z-index: 0; pointer-events: none;"></div>
+                        <div class="position-relative" style="z-index: 1;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Conta / Título:</span>
+                                <span class="fw-bold text-dark fs-6">{{ object.title }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Fornecedor:</span>
+                                <span class="text-muted">{{ object.supplier.company_name }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Valor Integral:</span>
+                                <span class="fw-bold text-danger fs-5">R$ {{ object.value|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg rounded-3 fw-bold shadow-sm">
+                                <i class="bi bi-trash-fill me-2"></i>Sim, excluir despesa
+                            </button>
+                            <a href="{% url 'outflow_list' %}"
+                                class="btn btn-light border btn-lg rounded-3 fw-medium text-secondary">
+                                Cancelar e Voltar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

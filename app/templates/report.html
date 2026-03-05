@@ -1,45 +1,129 @@
 {% extends 'base.html' %}
-{% block title %}DRE - Relatório{% endblock %}
+{% block title %}DRE - Relatório Consolidado{% endblock %}
 
 {% block content %}
-<h3>Relatório</h3>
-<div>
-    <form method="get" class="d-flex mb-3">
-        <label for="month">Mês:</label>
-        <select name="month" class="form-control mx-2">
-            <option value="">Todos</option>
-            {% for value, name in month_choices %}
-            <option value="{{ value }}" {% if month == value %}selected{% endif %}>{{ name }}</option>
-            {% endfor %}
-        </select>
-        <label for="year">Ano:</label>
-        <select name="year" class="form-control mx-2">
-            {% for y in years_choices %}
-            <option value="{{ y.year }}" {% if year|default:'' == y.year|stringformat:"s" %}selected{% endif %}>{{ y.year }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-    </form>
-</div>
-<div>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Plano de Contas</th>
-                <th>Tipo</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for conta in accountings %}
-            <tr>
-                <td>{{ conta.acc_name }}</td>
-                <td>{{ conta.type }}</td>
-                <td>R$ : {{ conta.total|default_if_none:"0.00"|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-5 align-items-center">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="bi bi-file-earmark-bar-graph text-primary me-2"></i>DRE Consolidado
+            </h2>
+            <p class="text-muted mb-0">Demonstrativo de Resultado do Exercício por período</p>
+        </div>
+    </div>
 
-{% endblock %}
+    <!-- Filtro Card -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form method="get" class="row g-3 align-items-end justify-content-center">
+                        <div class="col-md-4">
+                            <label for="year" class="form-label text-muted fw-semibold small text-uppercase">Ano de
+                                Referência</label>
+                            <select name="year" id="year" class="form-select form-select-lg bg-light border-0" required>
+                                <option value="">Selecione o Ano</option>
+                                {% for y in years_choices %}
+                                <!-- Gambiarra de tipos do Django contornada mantendo ifs limpos -->
+                                {% if year == y.year|stringformat:"i" %}
+                                <option value="{{ y.year }}" selected>{{ y.year }}</option>
+                                {% else %}
+                                <option value="{{ y.year }}">{{ y.year }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="month" class="form-label text-muted fw-semibold small text-uppercase">Mês de
+                                Referência</label>
+                            <select name="month" id="month" class="form-select form-select-lg bg-light border-0">
+                                <option value="">Ano Completo</option>
+                                {% for value, name in month_choices %}
+                                {% if month == value %}
+                                <option value="{{ value }}" selected>{{ name }}</option>
+                                {% else %}
+                                <option value="{{ value }}">{{ name }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg border-0 shadow-sm fw-bold">
+                                <i class="bi bi-filter me-2"></i>Filtrar DRE
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table Card -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="py-3 px-4 text-secondary fw-semibold border-0">Categoria (Plano de
+                                        Contas)
+                                    </th>
+                                    <th class="py-3 px-4 text-secondary fw-semibold border-0 text-center">Tipo</th>
+                                    <th class="py-3 px-4 text-secondary fw-semibold border-0 text-end">Total Consolidado
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                                {% for conta in accountings %}
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <span class="fw-bold text-dark fs-6">{{ conta.acc_name }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        {% if conta.type == 'E' %}
+                                        <span
+                                            class="badge bg-success bg-opacity-10 text-success border px-2 py-1 rounded-pill">Entrada
+                                            Receitas</span>
+                                        {% elif conta.type == 'S' %}
+                                        <span
+                                            class="badge bg-danger bg-opacity-10 text-danger border px-2 py-1 rounded-pill">Saída
+                                            Despesas</span>
+                                        {% else %}
+                                        <span
+                                            class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1 rounded-pill">
+                                            {{conta.type }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        {% if conta.type == 'S' %}
+                                        <span class="fw-bold text-danger fs-5">- R$
+                                            {{conta.total|default_if_none:"0.00"|floatformat:2 }}</span>
+                                        {% else %}
+                                        <span class="fw-bold text-success fs-5">+ R$
+                                            {{conta.total|default_if_none:"0.00"|floatformat:2 }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-5">
+                                        <div class="p-4">
+                                            <i class="bi bi-inboxes display-4 text-muted mb-3 opacity-50"></i>
+                                            <h5 class="text-dark fw-bold">Sem dados para o período</h5>
+                                            <p class="text-muted mb-0">Nenhuma movimentação foi registrada ou filtrada
+                                                neste
+                                                mês/ano.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    {% endblock %}

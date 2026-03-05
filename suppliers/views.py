@@ -1,27 +1,28 @@
 from django.shortcuts import render
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from . import models, forms
 from django.urls import reverse_lazy
 from .models import Supplier
 
-class SupplierCreate(CreateView):
+class SupplierListView(LoginRequiredMixin, ListView):
     model = models.Supplier
     template_name = 'supplier_list.html'
+    context_object_name = 'suppliers'
+
+class SupplierCreateView(LoginRequiredMixin, CreateView):
+    model = models.Supplier
+    template_name = 'supplier_form.html'
     form_class = forms.SupplierForm
     success_url = reverse_lazy('supplier_list')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['suppliers'] = Supplier.objects.all()  # adiciona todos os bancos no contexto
-        return context
-
-class SupplierDeleteView(DeleteView):
+class SupplierUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Supplier
-    template_name = 'supplier_list.html'
+    template_name = 'supplier_form.html'
+    form_class = forms.SupplierForm
     success_url = reverse_lazy('supplier_list')
 
-class SupplierUpdateView(UpdateView):
+class SupplierDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Supplier
-    template_name = 'supplier_list.html'
-    form_class = forms.SupplierForm
+    template_name = 'supplier_confirm_delete.html'
     success_url = reverse_lazy('supplier_list')

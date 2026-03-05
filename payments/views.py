@@ -1,18 +1,27 @@
-from django.shortcuts import render
-from django.views.generic.edit import CreateView
-from .models import Payment
-from . import models, forms
 from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Payment
+from . import forms
 
-
-class CreatePaymentView(CreateView):
-    model = models.Payment
+class PaymentListView(LoginRequiredMixin, ListView):
+    model = Payment
     template_name = 'payment_list.html'
+    context_object_name = 'payments'
+
+class CreatePaymentView(LoginRequiredMixin, CreateView):
+    model = Payment
+    template_name = 'payment_form.html'
     form_class = forms.PaymentForm
     success_url = reverse_lazy('payment_list')
-    queryset = Payment.objects.all()  # Adiciona um queryset padrão
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['payments'] = Payment.objects.all()  # adiciona todos os bancos no contexto
-        return context
+class PaymentUpdateView(LoginRequiredMixin, UpdateView):
+    model = Payment
+    template_name = 'payment_form.html'
+    form_class = forms.PaymentForm
+    success_url = reverse_lazy('payment_list')
+
+class PaymentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Payment
+    template_name = 'payment_confirm_delete.html'
+    success_url = reverse_lazy('payment_list')

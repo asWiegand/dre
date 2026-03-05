@@ -1,30 +1,95 @@
 {% extends 'base.html' %}
-{% block title %}Detalhes da Conta a Receber{% endblock %}
+{% block title %}DRE - Detalhes do Recebimento{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Detalhes da Conta a Receber</h5>
+<div class="container-fluid py-4">
+    <div class="mb-4 d-flex align-items-center">
+        <a href="{% url 'inflow_list' %}" class="btn btn-light shadow-sm text-secondary me-3"
+            style="border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+        <div>
+            <h3 class="fw-bold text-dark mb-0">Detalhes do Título</h3>
+            <p class="text-muted mb-0">Visão geral do lançamento de receita</p>
         </div>
-        <div class="card-body">
-            <p><strong>Cliente:</strong> {{ object.supplier }}</p>
-            <p><strong>Data de Emissão:</strong> {{ object.created_date|date:"d/m/Y" }}</p>
-            <p><strong>Valor:</strong> R$ {{ object.value|floatformat:2 }}</p>
-            <p><strong>Forma de Pagamento:</strong> {{ object.payment_method }}</p>
-            <p><strong>Plano de Contas:</strong> {{ object.accounting }}</p>
-            <p><strong>Status:</strong>
-                {% if object.status == 'PG' %}
-                    <span class="badge bg-success">Recebido</span>
-                {% else %}
-                    <span class="badge bg-warning text-dark">Pendente</span>
-                {% endif %}
-            </p>
-        </div>
-        <div class="card-footer text-end">
-            <a href="{% url 'inflow_list' %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Voltar
-            </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div
+                    class="card-header bg-success bg-opacity-10 border-0 p-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-success"><i class="bi bi-receipt me-2"></i>{{ object.title }}</h5>
+                    {% if object.status == 'PG' %}
+                    <span class="badge bg-success rounded-pill px-3 py-2 shadow-sm"><i
+                            class="bi bi-check-circle-fill me-1"></i>Recebido</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm"><i
+                            class="bi bi-hourglass-split me-1"></i>Pendente</span>
+                    {% endif %}
+                </div>
+                <div class="card-body p-5">
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <span class="d-block text-muted small fw-semibold text-uppercase mb-1">Cliente /
+                                Origem</span>
+                            <div class="fs-5 text-dark"><i class="bi bi-person me-2 text-secondary"></i>{{
+                                object.supplier }}</div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="d-block text-muted small fw-semibold text-uppercase mb-1">Valor do
+                                Título</span>
+                            <div class="fs-3 fw-bold text-success">R$ {{ object.value|floatformat:2 }}</div>
+                        </div>
+                    </div>
+
+                    <hr class="border-light my-4">
+
+                    <div class="row g-4">
+                        <div class="col-sm-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 h-100 border">
+                                <span class="d-block text-muted small mb-1"><i
+                                        class="bi bi-calendar-event me-1"></i>Emissão</span>
+                                <span class="fw-medium text-dark">{{ object.created_date|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 h-100 border">
+                                <span class="d-block text-muted small mb-1"><i
+                                        class="bi bi-clock-history me-1"></i>Vencimento</span>
+                                <span class="fw-medium text-dark">{{ object.expire_date|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 h-100 border">
+                                <span class="d-block text-muted small mb-1"><i
+                                        class="bi bi-calendar-check me-1"></i>Pagamento</span>
+                                <span class="fw-medium text-dark">{{ object.payment_date|date:"d/m/Y"|default:"-"
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-6">
+                            <div class="bg-light rounded-3 p-3 h-100 border">
+                                <span class="d-block text-muted small mb-1"><i class="bi bi-wallet2 me-1"></i>Forma de
+                                    Pagamento</span>
+                                <span class="fw-medium text-dark">{{ object.payment_method|default:"Não informada"
+                                    }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6">
+                            <div class="bg-light rounded-3 p-3 h-100 border">
+                                <span class="d-block text-muted small mb-1"><i class="bi bi-tag me-1"></i>Plano de
+                                    Contas</span>
+                                <span class="fw-medium text-dark">{{ object.accounting|default:"Não categorizado"
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 </div>

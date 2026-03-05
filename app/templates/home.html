@@ -1,38 +1,49 @@
 {% extends 'base.html' %}
-{% block title %}DRE - Dashboard{% endblock %}
+{% block title %}DRE - Dashboard Financeiro{% endblock %}
 
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container-fluid mt-4">
-  <div class="row text-center mb-4">
+<div class="container-fluid py-4">
+  <!-- Cabeçalho -->
+  <div class="row text-center mb-5">
     <div class="col">
-      <h2 class="fw-semibold text-dark">Dashboard Financeiro</h2>
-      <p class="text-muted">Resumo visual dos dados do sistema DRE</p>
+      <h2 class="fw-bold text-dark mb-1">Visão Geral Financeira</h2>
+      <p class="text-muted mb-0">Resumo visual e indicadores chave do sistema DRE</p>
     </div>
   </div>
 
   <div class="row g-4 justify-content-center">
     <!-- Saldo por Banco -->
-    <div class="col-md-5">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <h5 class="card-title text-center mb-3">
-            <i class="bi bi-bank2 me-2 text-primary"></i>Saldo por Banco
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center">
+          <h5 class="fw-bold text-dark mb-0">
+            <i class="bi bi-bank2 me-2 text-primary"></i>Saldo em Contas
           </h5>
-          <canvas id="bankChart" height="180"></canvas>
+          <p class="text-muted small">Distribuição atual do capital por banco</p>
+        </div>
+        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+          <div style="position: relative; width: 100%; height: 300px;">
+            <canvas id="bankChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Movimentações por Plano de Contas -->
-    <div class="col-md-5">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <h5 class="card-title text-center mb-3">
-            <i class="bi bi-pie-chart-fill me-2 text-success"></i>Movimentações por Plano de Contas
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center">
+          <h5 class="fw-bold text-dark mb-0">
+            <i class="bi bi-pie-chart-fill me-2 text-success"></i>Categorias de Movimentação
           </h5>
-          <canvas id="accountingChart" height="180"></canvas>
+          <p class="text-muted small">Distribuição de valores por plano de contas</p>
+        </div>
+        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+          <div style="position: relative; width: 100%; height: 300px;">
+            <canvas id="accountingChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -40,58 +51,108 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  var bankData = JSON.parse('{{ bank_chart_data|safe }}');
-  var accountingData = JSON.parse('{{ accounting_chart_data|safe }}');
+  document.addEventListener("DOMContentLoaded", function () {
+    var bankData = JSON.parse('{{ bank_chart_data|safe }}');
+    var accountingData = JSON.parse('{{ accounting_chart_data|safe }}');
 
-  // Gráfico de barras - Bancos
-  new Chart(document.getElementById("bankChart"), {
-    type: 'bar',
-    data: {
-      labels: bankData.labels,
-      datasets: [{
-        label: 'Saldo (R$)',
-        data: bankData.values,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1,
-        borderRadius: 4
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { display: false }
+    // Cores Premium
+    const primaryColors = [
+      'rgba(13, 110, 253, 0.85)', // primary
+      'rgba(25, 135, 84, 0.85)',  // success
+      'rgba(220, 53, 69, 0.85)',  // danger
+      'rgba(255, 193, 7, 0.85)',  // warning
+      'rgba(13, 202, 240, 0.85)', // info
+      'rgba(102, 16, 242, 0.85)'  // indigo
+    ];
+
+    // Gráfico de barras - Bancos
+    new Chart(document.getElementById("bankChart"), {
+      type: 'bar',
+      data: {
+        labels: bankData.labels,
+        datasets: [{
+          label: 'Saldo Disponível (R$)',
+          data: bankData.values,
+          backgroundColor: primaryColors[0],
+          borderColor: 'rgba(13, 110, 253, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          barPercentage: 0.6
+        }]
       },
-      scales: {
-        y: { beginAtZero: true }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: 12,
+            titleFont: { size: 14, family: "'Inter', sans-serif" },
+            bodyFont: { size: 14, family: "'Inter', sans-serif" },
+            callbacks: {
+              label: function (context) {
+                let label = context.dataset.label || '';
+                if (label) { label += ': '; }
+                if (context.parsed.y !== null) {
+                  label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                }
+                return label;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { borderDash: [4, 4], color: '#e9ecef' },
+            ticks: {
+              callback: function (value) { return 'R$ ' + value; }
+            }
+          },
+          x: { grid: { display: false } }
+        }
       }
-    }
-  });
+    });
 
-  // Gráfico de pizza - Plano de Contas
-  new Chart(document.getElementById("accountingChart"), {
-    type: 'pie',
-    data: {
-      labels: accountingData.labels,
-      datasets: [{
-        data: accountingData.values,
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.6)',
-          'rgba(54, 162, 235, 0.6)',
-          'rgba(255, 206, 86, 0.6)',
-          'rgba(75, 192, 192, 0.6)',
-          'rgba(153, 102, 255, 0.6)'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: 'right' }
+    // Gráfico de pizza/doughnut - Plano de Contas
+    new Chart(document.getElementById("accountingChart"), {
+      type: 'doughnut',
+      data: {
+        labels: accountingData.labels,
+        datasets: [{
+          data: accountingData.values,
+          backgroundColor: primaryColors,
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { font: { family: "'Inter', sans-serif", size: 13 }, padding: 20 }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: 12,
+            callbacks: {
+              label: function (context) {
+                let label = context.label || '';
+                if (label) { label += ': '; }
+                if (context.parsed !== null) {
+                  label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed);
+                }
+                return label;
+              }
+            }
+          }
+        }
       }
-    }
+    });
   });
-});
 </script>
-
 {% endblock %}

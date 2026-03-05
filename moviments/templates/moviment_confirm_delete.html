@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}DRE - Excluir Movimentação{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="bg-danger bg-opacity-10 px-4 py-5 text-center position-relative">
+                    <div class="position-absolute top-0 start-50 translate-middle mt-2">
+                        <div class="bg-white text-danger border border-danger border-opacity-25 rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                            style="width: 70px; height: 70px;">
+                            <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-5 text-center mt-3">
+                    <h4 class="fw-bold text-dark mb-3">Confirmar Exclusão</h4>
+                    <p class="text-muted mb-4">Você está prestes a excluir essa movimentação financeira definitivamente
+                        do sistema. Após excluída, esta operação <strong>não poderá ser desfeita</strong>.</p>
+
+                    <div class="bg-light border rounded-3 p-3 mb-4 text-start shadow-sm">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Descrição:</span>
+                            <span class="fw-medium text-dark">{{ object.description }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Valor:</span>
+                            <span class="fw-bold text-danger">R$ {{ object.value|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Data:</span>
+                            <span class="text-dark">{{ object.moviment_date|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg rounded-3 fw-bold shadow-sm">
+                                <i class="bi bi-trash-fill me-2"></i>Sim, desejo excluir!
+                            </button>
+                            <a href="{% url 'moviment_list' %}"
+                                class="btn btn-light border btn-lg rounded-3 fw-medium text-secondary">
+                                Cancelar e Voltar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

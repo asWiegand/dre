@@ -1,4 +1,6 @@
-from django.views.generic import CreateView, DetailView, DeleteView, UpdateView
+from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404, render
 from .models import Outflow, Supplier, Accounting, Payment
 from moviments.models import Moviment
@@ -10,22 +12,21 @@ from . import models, forms
 from django.urls import reverse_lazy
 from django.db.models import Sum
 
-
-class CreateOutflowView(CreateView):
+class OutflowListView(LoginRequiredMixin, ListView):
     model = Outflow
-    form_class = OutflowForm
-    template_name = 'outflow_list.html'  # Ajuste para seu template
-    success_url = reverse_lazy('outflow_list')  # Ajuste para sua URL de listagem
-
+    template_name = 'outflow_list.html'
+    context_object_name = 'outflows'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['outflows'] = Outflow.objects.all()  # adiciona todos os bancos no contexto
-        context['suppliers'] = Supplier.objects.all()
-        context['accountings'] = Accounting.objects.all()
-        context['payments'] = Payment.objects.all()
         context['banks'] = Bank.objects.all()
         return context
+
+class CreateOutflowView(LoginRequiredMixin, CreateView):
+    model = Outflow
+    form_class = OutflowForm
+    template_name = 'outflow_form.html'
+    success_url = reverse_lazy('outflow_list')
 
     def form_valid(self, form):
         created_date = form.cleaned_data['created_date']
@@ -65,22 +66,23 @@ class CreateOutflowView(CreateView):
 
         return redirect(self.success_url)
 
-
-class OutflowDeleteView(DeleteView):
+class OutflowDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Outflow
-    template_name = 'outflow_list.html'
+    template_name = 'outflow_confirm_delete.html'
     success_url = reverse_lazy('outflow_list')
 
-class OutflowDetailView(DetailView):
+class OutflowDetailView(LoginRequiredMixin, DetailView):
     model = models.Outflow
     template_name = 'outflow_detail.html'
 
-class OutflowUpdateView(UpdateView):
+class OutflowUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Outflow
-    template_name = 'outflow_list.html'
+    template_name = 'outflow_form.html'
     form_class = forms.OutflowUpdateForm
     success_url = reverse_lazy('outflow_list')
 
+
+@login_required
 def pay_outflow(request, pk):
     outflow = get_object_or_404(Outflow, pk=pk)
 
@@ -112,27 +114,19 @@ def pay_outflow(request, pk):
     return redirect('outflow_list')
 
 
+@login_required
 def outflow_report(request):
     # Pega parâmetros de filtro
-    month = request.GET.get('month')
-    year = request.GET.get('year')
-
-    # Obtém lista de anos disponíveis
-    years_choices = Outflow.objects.dates('expire_date', 'year', order='DESC')
-    month_choices = [
-        ('01', 'Janeiro'), ('02', 'Fevereiro'), ('03', 'Março'),
-        ('04', 'Abril'), ('05', 'Maio'), ('06', 'Junho'),
-        ('07', 'Julho'), ('08', 'Agosto'), ('09', 'Setembro'),
-        ('10', 'Outubro'), ('11', 'Novembro'), ('12', 'Dezembro')
-    ]
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
 
     # Filtragem base
     outflows = Outflow.objects.filter(status='NP')
 
-    if year:
-        outflows = outflows.filter(expire_date__year=year)
-    if month:
-        outflows = outflows.filter(expire_date__month=month)
+    if start_date:
+        outflows = outflows.filter(expire_date__gte=start_date)
+    if end_date:
+        outflows = outflows.filter(expire_date__lte=end_date)
 
     # Agrupamento por status
     total_np = outflows.filter(status='NP').aggregate(total=Sum('value'))['total'] or 0
@@ -140,8 +134,6 @@ def outflow_report(request):
     return render(request, 'outflow_report.html', {
         'outflows': outflows,
         'total_np': total_np,
-        'month_choices': month_choices,
-        'years_choices': years_choices,
-        'month': month,
-        'year': year
+        'start_date': start_date,
+        'end_date': end_date
     })

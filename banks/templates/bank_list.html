@@ -2,120 +2,73 @@
 {% block title %}DRE - Bancos{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="fw-semibold">
-      <i class="bi bi-bank text-success me-2"></i>Bancos Cadastrados
-    </h3>
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBankModal">
-      <i class="bi bi-plus-circle me-1"></i> Novo Banco
-    </button>
-  </div>
-
-  <!-- Modal: Adicionar Banco -->
-  <div class="modal fade" id="addBankModal" tabindex="-1" aria-labelledby="bankModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form method="post">
-          {% csrf_token %}
-          <div class="modal-header">
-            <h5 class="modal-title" id="bankModalLabel">Adicionar Banco</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-          </div>
-          <div class="modal-body">
-            {{ form.as_p }}
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-success">Salvar</button>
-          </div>
-        </form>
-      </div>
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h2 class="fw-bold text-dark mb-1">
+        <i class="bi bi-bank2 text-success me-2"></i>Bancos Cadastrados
+      </h2>
+      <p class="text-muted mb-0">Gerencie as contas bancárias da empresa</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+      <a href="{% url 'bank_create' %}" class="btn btn-success btn-lg shadow-sm rounded-3 px-4">
+        <i class="bi bi-plus-lg me-2"></i>Novo Banco
+      </a>
     </div>
   </div>
 
-  <!-- Tabela -->
-  <div class="card shadow-sm border-0">
-    <div class="card-body">
+  <!-- Data Table Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
+        <thead class="bg-light">
           <tr>
-            <th>ID</th>
-            <th>Nome do Banco</th>
-            <th>Saldo</th>
-            <th class="text-center">Ações</th>
+            <th class="py-3 px-4 text-secondary fw-semibold border-0" style="width: 80px;">ID</th>
+            <th class="py-3 px-4 text-secondary fw-semibold border-0">Nome do Banco</th>
+            <th class="py-3 px-4 text-secondary fw-semibold border-0 text-end">Saldo Atual</th>
+            <th class="py-3 px-4 text-secondary fw-semibold border-0 text-center" style="width: 120px;">Ações</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="border-top-0">
           {% for banco in banks %}
           <tr>
-            <td>{{ banco.id }}</td>
-            <td>{{ banco.bank_name }}</td>
-            <td>R$ {{ banco.balance|floatformat:2 }}</td>
-            <td class="text-center">
-              <!-- Editar -->
-              <button type="button" class="btn btn-outline-warning btn-sm me-1" data-bs-toggle="modal"
-                data-bs-target="#editBankModal{{ banco.id }}" title="Editar">
-                <i class="bi bi-pencil"></i>
-              </button>
-
-              <!-- Deletar -->
-              <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
-                data-bs-target="#deleteBankModal{{ banco.id }}" title="Excluir">
-                <i class="bi bi-trash"></i>
-              </button>
+            <td class="px-4 py-3 text-muted fw-medium">
+              #{{ banco.id|stringformat:"03d" }}
+            </td>
+            <td class="px-4 py-3">
+              <span class="fw-bold text-dark fs-5">{{ banco.bank_name }}</span>
+            </td>
+            <td class="px-4 py-3 text-end">
+              <span class="badge bg-success bg-opacity-10 text-success border p-2 fs-6">
+                R$ {{ banco.balance|floatformat:2 }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-center">
+              <div class="d-flex justify-content-center gap-2">
+                <a href="{% url 'bank_update' banco.id %}" class="btn btn-light btn-sm rounded-circle shadow-sm"
+                  style="width: 35px; height: 35px; padding: 0.45rem;" title="Editar">
+                  <i class="bi bi-pencil text-primary"></i>
+                </a>
+                <a href="{% url 'bank_delete' banco.id %}" class="btn btn-light btn-sm rounded-circle shadow-sm"
+                  style="width: 35px; height: 35px; padding: 0.45rem;" title="Excluir">
+                  <i class="bi bi-trash text-danger"></i>
+                </a>
+              </div>
             </td>
           </tr>
-
-          <!-- Modal de edição -->
-          <div class="modal fade" id="editBankModal{{ banco.id }}" tabindex="-1"
-            aria-labelledby="editModalLabel{{ banco.id }}" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <form method="post" action="{% url 'bank_update' banco.id %}">
-                  {% csrf_token %}
-                  <div class="modal-header">
-                    <h5 class="modal-title">Editar Banco</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                  </div>
-                  <div class="modal-body">
-                    <input type="text" name="bank_name" class="form-control" value="{{ banco.bank_name }}" required>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">Salvar Alterações</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          <!-- Modal de exclusão -->
-          <div class="modal fade" id="deleteBankModal{{ banco.id }}" tabindex="-1"
-            aria-labelledby="deleteModalLabel{{ banco.id }}" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <form method="post" action="{% url 'bank_delete' banco.id %}">
-                  {% csrf_token %}
-                  <div class="modal-header">
-                    <h5 class="modal-title">Excluir Banco</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                  </div>
-                  <div class="modal-body">
-                    Tem certeza que deseja excluir o banco <strong>{{ banco.bank_name }}</strong>?
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-danger">Excluir</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
           {% empty %}
           <tr>
-            <td colspan="4" class="text-center text-muted py-3">Nenhum banco cadastrado ainda.</td>
+            <td colspan="4" class="text-center py-5">
+              <div class="p-5">
+                <i class="bi bi-building display-3 text-muted mb-4 opacity-50"></i>
+                <h4 class="text-dark fw-bold">Nenhum banco cadastrado</h4>
+                <p class="text-muted mb-4">Você ainda não registrou as contas bancárias ou carteiras movimentadas pela
+                  empresa.</p>
+                <a href="{% url 'bank_create' %}" class="btn btn-outline-success rounded-pill px-5 shadow-sm">Cadastrar
+                  Agora</a>
+              </div>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
